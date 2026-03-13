@@ -4,11 +4,11 @@
 @tailwind utilities;
 
 .active-link {
-  background-color: #1D4ED8 !important;
-  color: #ffffff !important;
+  background-color: theme('colors.blue.700') !important;
+  color: theme('colors.white') !important;
 }
 
 .nav-link:hover {
-  background-color: #334155;
-  color: #ffffff;
+  background-color: theme('colors.gray.700');
+  color: theme('colors.white');
 }
