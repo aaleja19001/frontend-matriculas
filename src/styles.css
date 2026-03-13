@@ -2,3 +2,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.active-link {
+  background-color: #1D4ED8 !important;
+  color: #ffffff !important;
+}
+
+.nav-link:hover {
+  background-color: #334155;
+  color: #ffffff;
+}
