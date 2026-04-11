@@ -37,4 +37,8 @@ export class AppointmentService {
   delete(id: number) {
     return this.http.delete(`${this.url}/${id}`);
   }
+
+  create(appointment: any) {
+  return this.http.post<Appointment>(this.url, appointment);
+}
 }
