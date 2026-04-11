@@ -1,0 +1,183 @@
+<div style="max-width: 48rem; margin: 0 auto;">
+
+  <!-- Header -->
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 1.5rem; font-weight: 700; color: #0F172A;">Solicitar cita</h1>
+    <p style="font-size: 0.875rem; color: #64748B; margin-top: 0.25rem;">Completa el formulario para agendar tu cita de matrícula</p>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" style="display: flex; justify-content: center; padding: 4rem 0;">
+    <svg style="animation: spin 1s linear infinite; width: 1.5rem; height: 1.5rem; color: #2563EB;" fill="none" viewBox="0 0 24 24">
+      <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+      <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+    </svg>
+  </div>
+
+  <!-- Success -->
+  <div *ngIf="success"
+       style="background-color: #D1FAE5; border: 1px solid #A7F3D0; border-radius: 1rem; padding: 1.5rem; text-align: center; margin-bottom: 1.5rem;">
+    <svg style="width: 3rem; height: 3rem; color: #059669; margin: 0 auto 0.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <p style="font-size: 1rem; font-weight: 600; color: #059669;">¡Cita solicitada exitosamente!</p>
+    <p style="font-size: 0.875rem; color: #065F46; margin-top: 0.25rem;">Redirigiendo a tus citas...</p>
+  </div>
+
+  <div *ngIf="!loading && !success">
+
+    <!-- Error -->
+    <div *ngIf="error"
+         style="background-color: #FEE2E2; border: 1px solid #FECACA; border-radius: 0.75rem; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.875rem; color: #DC2626; display: flex; align-items: center; gap: 0.5rem;">
+      <svg style="width: 1rem; height: 1rem; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      {{ error }}
+    </div>
+
+    <!-- Info estudiante -->
+    <div *ngIf="student"
+         style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 1rem; padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+      <div style="width: 2.5rem; height: 2.5rem; background-color: #2563EB; border-radius: 9999px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <span style="color: white; font-weight: 700; font-size: 0.875rem;">
+          {{ student.firstName?.charAt(0) }}{{ student.lastName?.charAt(0) }}
+        </span>
+      </div>
+      <div style="flex: 1;">
+        <p style="font-size: 0.875rem; font-weight: 600; color: #0F172A;">{{ student.firstName }} {{ student.lastName }}</p>
+        <p style="font-size: 0.75rem; color: #64748B;">Código: {{ student.studentCode }} · CC: {{ student.nationalId }}</p>
+      </div>
+      <div style="text-align: right;">
+        <p style="font-size: 0.75rem; color: #64748B;">Programa</p>
+        <p style="font-size: 0.875rem; font-weight: 500; color: #0F172A;">{{ student.program?.name ?? 'Sin asignar' }}</p>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+
+      <!-- Columna izquierda -->
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+        <!-- Slot -->
+        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 1.25rem;">
+          <h3 style="font-size: 0.875rem; font-weight: 600; color: #0F172A; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="width: 1.5rem; height: 1.5rem; background-color: #EEF2FF; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #2563EB; font-weight: 700;">1</span>
+            Horario de atención
+          </h3>
+          <select [(ngModel)]="form.slotId"
+                  style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box; cursor: pointer;">
+            <option [ngValue]="null">Selecciona un horario</option>
+            <option *ngFor="let slot of slots" [ngValue]="slot.id">
+              {{ formatDate(slot.startTime) }} ({{ slot.availableSpots - (slot.bookedSpots ?? 0) }} cupos)
+            </option>
+          </select>
+          <p *ngIf="slots.length === 0" style="font-size: 0.75rem; color: #DC2626; margin-top: 0.5rem;">
+            No hay slots disponibles en este momento.
+          </p>
+        </div>
+
+        <!-- Créditos -->
+        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 1.25rem;">
+          <h3 style="font-size: 0.875rem; font-weight: 600; color: #0F172A; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="width: 1.5rem; height: 1.5rem; background-color: #EEF2FF; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #2563EB; font-weight: 700;">2</span>
+            Créditos actuales
+          </h3>
+          <input type="number" [(ngModel)]="form.currentCredits" min="0" max="300"
+                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
+                 placeholder="Ej: 85"/>
+          <p style="font-size: 0.75rem; color: #64748B; margin-top: 0.375rem;">Total de créditos aprobados hasta la fecha</p>
+        </div>
+
+        <!-- Horario actual -->
+        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 1.25rem;">
+          <h3 style="font-size: 0.875rem; font-weight: 600; color: #0F172A; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="width: 1.5rem; height: 1.5rem; background-color: #EEF2FF; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #2563EB; font-weight: 700;">3</span>
+            Horario actual
+          </h3>
+          <textarea [(ngModel)]="form.currentSchedule" rows="3"
+                    style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box; resize: vertical;"
+                    placeholder="Ej: Lunes 7am-9am Cálculo..."></textarea>
+        </div>
+
+        <!-- Notas -->
+        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 1.25rem;">
+          <h3 style="font-size: 0.875rem; font-weight: 600; color: #0F172A; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="width: 1.5rem; height: 1.5rem; background-color: #EEF2FF; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #2563EB; font-weight: 700;">4</span>
+            Notas adicionales
+          </h3>
+          <textarea [(ngModel)]="form.notes" rows="3"
+                    style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box; resize: vertical;"
+                    placeholder="Información adicional para el asesor..."></textarea>
+        </div>
+
+      </div>
+
+      <!-- Columna derecha — Materias -->
+      <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 1.25rem;">
+        <h3 style="font-size: 0.875rem; font-weight: 600; color: #0F172A; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span style="width: 1.5rem; height: 1.5rem; background-color: #EEF2FF; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #2563EB; font-weight: 700;">5</span>
+          Materias deseadas
+        </h3>
+        <p style="font-size: 0.75rem; color: #64748B; margin-bottom: 1rem;">Selecciona las materias que deseas matricular</p>
+
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 400px; overflow-y: auto;">
+          <div *ngFor="let subject of subjects"
+               (click)="toggleSubject(subject.id!)"
+               style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-radius: 0.75rem; cursor: pointer; transition: all 0.15s; border: 1px solid;"
+               [style.border-color]="isSelected(subject.id!) ? '#2563EB' : '#E2E8F0'"
+               [style.background-color]="isSelected(subject.id!) ? '#EEF2FF' : '#F8FAFC'">
+            <div>
+              <p style="font-size: 0.875rem; font-weight: 500;"
+                 [style.color]="isSelected(subject.id!) ? '#2563EB' : '#0F172A'">
+                {{ subject.name }}
+              </p>
+              <p style="font-size: 0.75rem; color: #64748B; margin-top: 0.125rem;">
+                {{ subject.code }} · {{ subject.credits }} créditos
+              </p>
+            </div>
+            <div style="width: 1.25rem; height: 1.25rem; border-radius: 9999px; border: 2px solid; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
+                 [style.border-color]="isSelected(subject.id!) ? '#2563EB' : '#CBD5E1'"
+                 [style.background-color]="isSelected(subject.id!) ? '#2563EB' : 'transparent'">
+              <svg *ngIf="isSelected(subject.id!)" style="width: 0.75rem; height: 0.75rem; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+          </div>
+
+          <div *ngIf="subjects.length === 0" style="text-align: center; padding: 2rem; color: #94A3B8; font-size: 0.875rem;">
+            No hay materias disponibles.
+          </div>
+        </div>
+
+        <!-- Resumen selección -->
+        <div *ngIf="selectedSubjects.length > 0"
+             style="margin-top: 1rem; padding: 0.75rem 1rem; background-color: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 0.75rem;">
+          <p style="font-size: 0.75rem; color: #059669; font-weight: 600;">
+            {{ selectedSubjects.length }} materia(s) seleccionada(s)
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Botones -->
+    <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+      <button routerLink="/student/dashboard"
+              style="flex: 1; padding: 0.75rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 500; background: #F1F5F9; color: #64748B; border: none; cursor: pointer;">
+        Cancelar
+      </button>
+      <button (click)="submit()" [disabled]="saving || slots.length === 0"
+              style="flex: 2; padding: 0.75rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 600; background-color: #2563EB; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"
+              onmouseover="this.style.backgroundColor='#1D4ED8'"
+              onmouseout="this.style.backgroundColor='#2563EB'">
+        <svg *ngIf="saving" style="animation: spin 1s linear infinite; width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24">
+          <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/>
+          <path style="opacity: 0.75;" fill="white" d="M4 12a8 8 0 018-8v8z"/>
+        </svg>
+        {{ saving ? 'Enviando solicitud...' : 'Solicitar cita' }}
+      </button>
+    </div>
+
+  </div>
+</div>
