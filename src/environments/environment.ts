@@ -4,5 +4,5 @@
 // };
 export const environment = {
   production: true,
-  apiUrl: ''
+  apiUrl: 'https://gestionmatriculasacademicas.onrender.com/api'
 };
