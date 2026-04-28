@@ -1,42 +1,70 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-reset-password',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './login.component.html'
+  templateUrl: './reset-password.component.html'
 })
-export class LoginComponent implements AfterViewInit {
-  username = '';
-  password = '';
+export class ResetPasswordComponent implements OnInit, AfterViewInit {
+  key = '';
+  newPassword = '';
+  confirmPassword = '';
   error = '';
+  success = '';
   loading = false;
   showPassword = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
-  onLogin() {
+  ngOnInit() {
+    this.key = this.route.snapshot.queryParamMap.get('token') || '';
+    if (!this.key) {
+      this.error = 'Token de recuperación no encontrado. Por favor, solicita uno nuevo.';
+    }
+  }
+
+  onSubmit() {
+    if (this.newPassword !== this.confirmPassword) {
+      this.error = 'Las contraseñas no coinciden.';
+      return;
+    }
+
     this.loading = true;
     this.error = '';
-    this.authService.login(this.username, this.password).subscribe({
+    this.success = '';
+
+    this.authService.completeReset(this.key, this.newPassword).subscribe({
       next: () => {
-        if (this.authService.isAdmin()) {
-          this.router.navigate(['/admin/dashboard']);
-        } else {
-          this.router.navigate(['/student/dashboard']);
-        }
-      },
-      error: () => {
-        this.error = 'Usuario o contraseña incorrectos';
+        this.success = 'Contraseña actualizada correctamente. Redirigiendo al inicio de sesión...';
         this.loading = false;
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 3000);
+      },
+      error: (err) => {
+        this.loading = false;
+        // The backend now returns the exception message as a string in the body
+        if (err.error && typeof err.error === 'string') {
+          this.error = err.error;
+        } else if (err.error && err.error.message) {
+          this.error = err.error.message;
+        } else if (err.status === 400) {
+          this.error = 'El token es inválido o ha expirado. Por favor, solicita uno nuevo.';
+        } else {
+          this.error = 'Ocurrió un error al intentar restablecer la contraseña.';
+        }
       }
     });
   }
-
 
   ngAfterViewInit() {
     this.initMeteors();
@@ -128,7 +156,3 @@ export class LoginComponent implements AfterViewInit {
     animate();
   }
 }
-
-
-
-
