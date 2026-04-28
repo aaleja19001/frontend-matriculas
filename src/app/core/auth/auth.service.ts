@@ -38,6 +38,14 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
+  requestReset(email: string) {
+    return this.http.post(`${environment.apiUrl}/account/reset-password/init`, email, { responseType: 'text' });
+  }
+
+  completeReset(key: string, newPassword: string) {
+    return this.http.post(`${environment.apiUrl}/account/reset-password/finish`, { key, newPassword });
+  }
+
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
   }

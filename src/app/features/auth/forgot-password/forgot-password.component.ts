@@ -5,38 +5,36 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-forgot-password',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './login.component.html'
+  templateUrl: './forgot-password.component.html'
 })
-export class LoginComponent implements AfterViewInit {
-  username = '';
-  password = '';
+export class ForgotPasswordComponent implements AfterViewInit {
+  email = '';
   error = '';
+  success = '';
   loading = false;
-  showPassword = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  onLogin() {
+  onSubmit() {
     this.loading = true;
     this.error = '';
-    this.authService.login(this.username, this.password).subscribe({
-      next: () => {
-        if (this.authService.isAdmin()) {
-          this.router.navigate(['/admin/dashboard']);
-        } else {
-          this.router.navigate(['/student/dashboard']);
-        }
+    this.success = '';
+    this.authService.requestReset(this.email).subscribe({
+      next: (token) => {
+        this.success = 'Se ha enviado un correo para restablecer tu contraseña.';
+        this.loading = false;
+        // In this implementation, the backend returns the token directly for demo purposes
+        console.log('Token de recuperación (demo):', token);
       },
-      error: () => {
-        this.error = 'Usuario o contraseña incorrectos';
+      error: (err) => {
+        this.error = 'No se encontró una cuenta con ese correo electrónico.';
         this.loading = false;
       }
     });
   }
-
 
   ngAfterViewInit() {
     this.initMeteors();
@@ -128,7 +126,3 @@ export class LoginComponent implements AfterViewInit {
     animate();
   }
 }
-
-
-
-
