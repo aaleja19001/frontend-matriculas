@@ -26,7 +26,7 @@ export class ResetPasswordComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    this.key = this.route.snapshot.queryParamMap.get('key') || '';
+    this.key = this.route.snapshot.queryParamMap.get('token') || '';
     if (!this.key) {
       this.error = 'Token de recuperación no encontrado. Por favor, solicita uno nuevo.';
     }
@@ -52,10 +52,11 @@ export class ResetPasswordComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         this.loading = false;
-        // The backend returns 400 Bad Request for both invalid and expired tokens in AccountController
-        // If we want specific messages, we'd need to check the error body if the backend sends it
+        // The backend now returns the exception message as a string in the body
         if (err.error && typeof err.error === 'string') {
           this.error = err.error;
+        } else if (err.error && err.error.message) {
+          this.error = err.error.message;
         } else if (err.status === 400) {
           this.error = 'El token es inválido o ha expirado. Por favor, solicita uno nuevo.';
         } else {
