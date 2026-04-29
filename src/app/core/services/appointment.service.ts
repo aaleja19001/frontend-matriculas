@@ -41,4 +41,9 @@ export class AppointmentService {
   create(appointment: any) {
   return this.http.post<Appointment>(this.url, appointment);
 }
+
+getByStudent(studentId: number) {
+  return this.http.get<Appointment[]>(`${this.url}/student/${studentId}`);
+}
+
 }
