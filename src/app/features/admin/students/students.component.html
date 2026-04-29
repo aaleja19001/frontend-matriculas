@@ -18,12 +18,12 @@
       </div>
 
       <!-- Botón nuevo -->
-      <button (click)="openCreate()"
-              style="display: flex; align-items: center; gap: 0.5rem; background-color: #2563EB; color: white; font-size: 0.875rem; font-weight: 600; padding: 0.625rem 1rem; border-radius: 0.75rem; border: none; cursor: pointer;"
-              onmouseover="this.style.backgroundColor='#1D4ED8'"
-              onmouseout="this.style.backgroundColor='#2563EB'">
-        + Nuevo estudiante
-      </button>
+      <button (click)="openCreate(); $event.stopPropagation()"
+        style="display: flex; align-items: center; gap: 0.5rem; background-color: #2563EB; color: white; font-size: 0.875rem; font-weight: 600; padding: 0.625rem 1rem; border-radius: 0.75rem; border: none; cursor: pointer;"
+        onmouseover="this.style.backgroundColor='#1D4ED8'"
+        onmouseout="this.style.backgroundColor='#2563EB'">
+  + Nuevo estudiante
+</button>
     </div>
   </div>
 
@@ -126,14 +126,16 @@
         <div>
           <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Nombre</label>
           <input type="text" [(ngModel)]="form.firstName"
-                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
-                 placeholder="Juan"/>
+       (keypress)="onlyLetters($event)"
+       style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
+       placeholder="Juan"/>
         </div>
         <div>
           <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Apellido</label>
           <input type="text" [(ngModel)]="form.lastName"
-                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
-                 placeholder="Pérez"/>
+       (keypress)="onlyLetters($event)"
+       style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
+       placeholder="Pérez"/>
         </div>
       </div>
 
@@ -142,12 +144,14 @@
         <div>
           <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Código estudiantil</label>
           <input type="text" [(ngModel)]="form.studentCode"
+       (keypress)="onlyNumbers($event)"
                  style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
                  placeholder="20231234"/>
         </div>
         <div>
           <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Cédula</label>
           <input type="text" [(ngModel)]="form.nationalId"
+       (keypress)="onlyNumbers($event)"
                  style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
                  placeholder="1234567890"/>
         </div>
