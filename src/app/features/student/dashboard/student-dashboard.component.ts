@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AppointmentService, Appointment } from '../../../core/services/appointment.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { StudentService } from '../../../core/services/student.service';
 
 @Component({
   selector: 'app-student-dashboard',
@@ -26,6 +27,7 @@ export class StudentDashboardComponent implements OnInit {
   constructor(
     private appointmentService: AppointmentService,
     private authService: AuthService,
+    private studentService: StudentService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -33,17 +35,22 @@ export class StudentDashboardComponent implements OnInit {
     this.loadAppointments();
   }
 
-  loadAppointments() {
-    this.loading = true;
-    this.appointmentService.getAll().subscribe({
-      next: data => {
-        this.appointments = [...data];
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => { this.loading = false; this.cdr.detectChanges(); }
-    });
-  }
+ loadAppointments() {
+  this.loading = true;
+  this.studentService.getMe().subscribe({
+    next: student => {
+      this.appointmentService.getByStudent(student.id!).subscribe({
+        next: data => {
+          this.appointments = [...data];
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => { this.loading = false; this.cdr.detectChanges(); }
+      });
+    },
+    error: () => { this.loading = false; this.cdr.detectChanges(); }
+  });
+}
 
   formatDate(date: string) {
     if (!date) return '—';
