@@ -1,6 +1,15 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
+
+import { SubjectOffering } from './subject-offering.service';
+
+export interface Enrollment {
+  id?: number;
+  enrollmentDate?: string;
+  student?: { id: number };
+  subjectOffering: SubjectOffering;
+}
 
 export interface Appointment {
   id?: number;
@@ -12,7 +21,7 @@ export interface Appointment {
   notes?: string;
   student?: { id: number; firstName?: string; lastName?: string; studentCode?: string };
   availableSlot?: { id: number; startTime?: string; endTime?: string };
-  desiredSubjects?: { id: number; name?: string; code?: string }[];
+  enrollments?: Enrollment[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -32,6 +41,10 @@ export class AppointmentService {
 
   updateStatus(id: number, status: string) {
     return this.http.patch<Appointment>(`${this.url}/${id}/status`, { status });
+  }
+
+  cancel(id: number) {
+    return this.http.patch<Appointment>(`${this.url}/${id}/cancel`, {});
   }
 
   delete(id: number) {

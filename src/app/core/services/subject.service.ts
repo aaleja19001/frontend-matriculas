@@ -1,13 +1,15 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { Professor } from './professor.service';
 
 export interface Subject {
   id?: number;
   name: string;
   code: string;
   credits: number;
+  professor?: Professor;
   programs?: any[];
 }
 
