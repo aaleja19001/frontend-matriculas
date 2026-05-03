@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SubjectService, Subject } from '../../../core/services/subject.service';
 import { ProgramService, Program } from '../../../core/services/program.service';
+import { ProfessorService, Professor } from '../../../core/services/professor.service';
 
 @Component({
   selector: 'app-subjects',
@@ -15,6 +16,7 @@ export class SubjectsComponent implements OnInit {
   subjects: Subject[] = [];
   filtered: Subject[] = [];
   programs: Program[] = [];
+  professors: Professor[] = [];
   loading = false;
   search = '';
   showModal = false;

@@ -33,7 +33,13 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
       {{ error }}
+      <div *ngIf="error.includes('Ya tienes una cita activa')" style="margin-top: 1rem;">
+        <a routerLink="/student/dashboard" style="color: #2563EB; font-weight: 500; text-decoration: none;">Ver mis citas</a>
+      </div>
     </div>
+
+    <!-- Formulario - solo mostrar si no hay error de cita activa -->
+    <div *ngIf="!error || !error.includes('Ya tienes una cita activa')">
 
     <!-- Info estudiante -->
     <div *ngIf="student"
@@ -113,48 +119,85 @@
 
       </div>
 
-      <!-- Columna derecha — Materias -->
+      <!-- Columna derecha — Materias por día -->
       <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 1.25rem;">
         <h3 style="font-size: 0.875rem; font-weight: 600; color: #0F172A; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
           <span style="width: 1.5rem; height: 1.5rem; background-color: #EEF2FF; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #2563EB; font-weight: 700;">5</span>
-          Materias deseadas
+          Ofertas de materias
         </h3>
-        <p style="font-size: 0.75rem; color: #64748B; margin-bottom: 1rem;">Selecciona las materias que deseas matricular</p>
+        <p style="font-size: 0.75rem; color: #64748B; margin-bottom: 1rem;">Selecciona las materias que deseas matricular (máx 7)</p>
 
-        <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 400px; overflow-y: auto;">
-          <div *ngFor="let subject of subjects"
-               (click)="toggleSubject(subject.id!)"
-               style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-radius: 0.75rem; cursor: pointer; transition: all 0.15s; border: 1px solid;"
-               [style.border-color]="isSelected(subject.id!) ? '#2563EB' : '#E2E8F0'"
-               [style.background-color]="isSelected(subject.id!) ? '#EEF2FF' : '#F8FAFC'">
-            <div>
-              <p style="font-size: 0.875rem; font-weight: 500;"
-                 [style.color]="isSelected(subject.id!) ? '#2563EB' : '#0F172A'">
-                {{ subject.name }}
-              </p>
-              <p style="font-size: 0.75rem; color: #64748B; margin-top: 0.125rem;">
-                {{ subject.code }} · {{ subject.credits }} créditos
-              </p>
+        <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 600px; overflow-y: auto;">
+          <!-- Para cada día de la semana -->
+          <div *ngFor="let day of daysOfWeek" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <h4 style="font-size: 0.8rem; font-weight: 700; color: #2563EB; text-transform: uppercase; letter-spacing: 0.05em; padding-bottom: 0.5rem; border-bottom: 2px solid #EEF2FF;">
+              {{ DayOfWeekNames[day] }}
+            </h4>
+
+            <div *ngFor="let offering of getOfferingsByDay(day)"
+                 (click)="toggleOffering(offering.id!)"
+                 style="display: flex; align-items: flex-start; justify-content: space-between; padding: 0.75rem; border-radius: 0.75rem; cursor: pointer; transition: all 0.15s; border: 1px solid;"
+                 [style.border-color]="isSelected(offering.id!) ? '#2563EB' : '#E2E8F0'"
+                 [style.background-color]="isSelected(offering.id!) ? '#EEF2FF' : '#F8FAFC'"
+                 [style.opacity]="(offering.enrolledCount ?? 0) >= offering.capacity ? '0.6' : '1'">
+              <div style="flex: 1;">
+                <p style="font-size: 0.875rem; font-weight: 600;"
+                   [style.color]="isSelected(offering.id!) ? '#2563EB' : '#0F172A'">
+                  {{ offering.subject.name }}
+                </p>
+                <p style="font-size: 0.75rem; color: #64748B; margin-top: 0.125rem;">
+                  {{ offering.subject.code }} · {{ offering.subject.credits }} cr.
+                </p>
+                <!-- Profesor y horario en una fila -->
+                <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                  <p *ngIf="offering.professor" style="font-size: 0.7rem; color: #475569; display: flex; align-items: center; gap: 0.25rem;">
+                    <svg style="width: 0.6rem; height: 0.6rem; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    {{ offering.professor.firstName }} {{ offering.professor.lastName }}
+                  </p>
+                  <p style="font-size: 0.7rem; color: #2563EB; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
+                    <svg style="width: 0.6rem; height: 0.6rem; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    {{ formatTimeRange(offering.startTime, offering.endTime) }}
+                  </p>
+                </div>
+                <!-- Cupos y semestre -->
+                <div style="display: flex; gap: 1rem; margin-top: 0.375rem;">
+                  <p style="font-size: 0.65rem; color: #64748B;">
+                    Sem: {{ offering.semester }}
+                  </p>
+                  <p style="font-size: 0.65rem;" 
+                     [style.color]="(offering.enrolledCount ?? 0) >= offering.capacity ? '#DC2626' : '#059669'">
+                    Cupos: {{ offering.capacity - (offering.enrolledCount ?? 0) }}/{{ offering.capacity }}
+                  </p>
+                </div>
+              </div>
+              <div style="width: 1.25rem; height: 1.25rem; border-radius: 9999px; border: 2px solid; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 0.5rem; margin-top: 0.25rem;"
+                   [style.border-color]="isSelected(offering.id!) ? '#2563EB' : '#CBD5E1'"
+                   [style.background-color]="isSelected(offering.id!) ? '#2563EB' : 'transparent'">
+                <svg *ngIf="isSelected(offering.id!)" style="width: 0.75rem; height: 0.75rem; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
             </div>
-            <div style="width: 1.25rem; height: 1.25rem; border-radius: 9999px; border: 2px solid; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
-                 [style.border-color]="isSelected(subject.id!) ? '#2563EB' : '#CBD5E1'"
-                 [style.background-color]="isSelected(subject.id!) ? '#2563EB' : 'transparent'">
-              <svg *ngIf="isSelected(subject.id!)" style="width: 0.75rem; height: 0.75rem; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-              </svg>
-            </div>
+
+            <p *ngIf="getOfferingsByDay(day).length === 0" style="font-size: 0.75rem; color: #CBD5E1; text-align: center; padding: 1rem; font-style: italic;">
+              Sin materias este día
+            </p>
           </div>
 
-          <div *ngIf="subjects.length === 0" style="text-align: center; padding: 2rem; color: #94A3B8; font-size: 0.875rem;">
-            No hay materias disponibles.
+          <div *ngIf="offerings.length === 0" style="text-align: center; padding: 2rem; color: #94A3B8; font-size: 0.875rem;">
+            No hay ofertas de materias disponibles.
           </div>
         </div>
 
         <!-- Resumen selección -->
-        <div *ngIf="selectedSubjects.length > 0"
+        <div *ngIf="selectedOfferings.length > 0"
              style="margin-top: 1rem; padding: 0.75rem 1rem; background-color: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 0.75rem;">
           <p style="font-size: 0.75rem; color: #059669; font-weight: 600;">
-            {{ selectedSubjects.length }} materia(s) seleccionada(s)
+            {{ selectedOfferings.length }} materia(s) seleccionada(s)
           </p>
         </div>
       </div>
@@ -178,6 +221,8 @@
         {{ saving ? 'Enviando solicitud...' : 'Solicitar cita' }}
       </button>
     </div>
+
+    </div> <!-- Cierre del div condicional del formulario -->
 
   </div>
 </div>

@@ -109,15 +109,6 @@
         <span style="font-size: 0.875rem; color: #64748B; display: block; margin-bottom: 0.25rem;">Notas</span>
         <p style="font-size: 0.875rem; color: #0F172A;">{{ selected.notes }}</p>
       </div>
-      <div *ngIf="selected.desiredSubjects?.length" style="padding: 0.5rem 0;">
-        <span style="font-size: 0.875rem; color: #64748B; display: block; margin-bottom: 0.5rem;">Materias deseadas</span>
-        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-          <span *ngFor="let s of selected.desiredSubjects"
-                style="background-color: #DBEAFE; color: #2563EB; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500;">
-            {{ s.name }}
-          </span>
-        </div>
-      </div>
     </div>
 
     <div *ngIf="selected.status === 'PENDING'" style="display: flex; gap: 0.75rem;">

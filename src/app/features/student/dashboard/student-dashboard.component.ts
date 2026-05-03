@@ -1,8 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { AppointmentService, Appointment } from '../../../core/services/appointment.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { Appointment, AppointmentService } from '../../../core/services/appointment.service';
 import { StudentService } from '../../../core/services/student.service';
 
 @Component({
@@ -73,4 +73,21 @@ export class StudentDashboardComponent implements OnInit {
   get pending() { return this.appointments.filter(a => a.status === 'PENDING').length; }
   get approved() { return this.appointments.filter(a => a.status === 'APPROVED').length; }
   get rejected() { return this.appointments.filter(a => a.status === 'REJECTED').length; }
+
+  cancelAppointment(appointment: Appointment) {
+    if (confirm('¿Estás seguro de que quieres cancelar esta cita?')) {
+      this.appointmentService.cancel(appointment.id!).subscribe({
+        next: () => {
+          this.loadAppointments();
+        },
+        error: (err) => {
+          alert('Error al cancelar la cita: ' + (err.error?.detail || err.error?.message || 'Error desconocido'));
+        }
+      });
+    }
+  }
+
+  canCancel(appointment: Appointment) {
+    return appointment.status !== 'CANCELLED';
+  }
 }
