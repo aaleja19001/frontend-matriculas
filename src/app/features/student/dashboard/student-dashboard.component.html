@@ -9,20 +9,20 @@
   <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 2rem;">
     <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 1.25rem;">
       <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Pendientes</p>
-      <p style="font-size: 2rem; font-weight: 700; color: #D97706; margin-top: 0.5rem;">{{ pending }}</p>
+      <p style="font-size: 2rem; font-weight: 700; color: #D97706; margin-top: 0.5rem;">{{ pending() }}</p>
     </div>
     <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 1.25rem;">
       <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Aprobadas</p>
-      <p style="font-size: 2rem; font-weight: 700; color: #059669; margin-top: 0.5rem;">{{ approved }}</p>
+      <p style="font-size: 2rem; font-weight: 700; color: #059669; margin-top: 0.5rem;">{{ approved() }}</p>
     </div>
     <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 1.25rem;">
       <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Rechazadas</p>
-      <p style="font-size: 2rem; font-weight: 700; color: #DC2626; margin-top: 0.5rem;">{{ rejected }}</p>
+      <p style="font-size: 2rem; font-weight: 700; color: #DC2626; margin-top: 0.5rem;">{{ rejected() }}</p>
     </div>
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading" style="display: flex; justify-content: center; padding: 4rem 0;">
+  <div *ngIf="loading()" style="display: flex; justify-content: center; padding: 4rem 0;">
     <svg style="animation: spin 1s linear infinite; width: 1.5rem; height: 1.5rem; color: #2563EB;" fill="none" viewBox="0 0 24 24">
       <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
       <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
@@ -30,7 +30,7 @@
   </div>
 
   <!-- Tabla -->
-  <div *ngIf="!loading" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; overflow: hidden;">
+  <div *ngIf="!loading()" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; overflow: hidden;">
     <table style="width: 100%; border-collapse: collapse;">
       <thead style="background-color: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
         <tr>
@@ -43,12 +43,12 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let a of appointments"
+        <tr *ngFor="let a of appointments()"
             style="border-bottom: 1px solid #F1F5F9;"
             onmouseover="this.style.backgroundColor='#F8FAFC'"
             onmouseout="this.style.backgroundColor='transparent'">
-          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #0F172A;">{{ formatDate(a.requestDate!) }}</td>
-          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #64748B;">{{ formatDate(a.availableSlot?.startTime!) }}</td>
+          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #0F172A;">{{ formatDate(a.requestDate) }}</td>
+          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #64748B;">{{ formatDate(a.availableSlot?.startTime) }}</td>
           <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #0F172A; font-weight: 500;">{{ a.currentCredits }}</td>
           <td style="padding: 1rem 1.5rem;">
             <span style="padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;"
@@ -56,7 +56,7 @@
               {{ statusLabels[a.status] }}
             </span>
           </td>
-          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #64748B;">{{ formatDate(a.responseDate!) }}</td>
+          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #64748B;">{{ formatDate(a.responseDate) }}</td>
           <td style="padding: 1rem 1.5rem;">
             <button *ngIf="canCancel(a)"
                     (click)="cancelAppointment(a)"
@@ -65,7 +65,7 @@
             </button>
           </td>
         </tr>
-        <tr *ngIf="appointments.length === 0">
+        <tr *ngIf="appointments().length === 0">
           <td colspan="6" style="padding: 4rem 1.5rem; text-align: center; font-size: 0.875rem; color: #94A3B8;">
             No tienes citas registradas. 
             <a routerLink="/student/request" style="color: #2563EB; font-weight: 500; text-decoration: none;">Solicita una aquí</a>

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProgramService, Program } from '../../../core/services/program.service';
@@ -12,14 +12,21 @@ import { SubjectService, Subject } from '../../../core/services/subject.service'
 })
 export class ProgramsComponent implements OnInit {
 
-  programs: Program[] = [];
-  filtered: Program[] = [];
-  subjects: Subject[] = [];
-  loading = false;
-  search = '';
-  showModal = false;
-  saving = false;
-  editingId: number | null = null;
+  programs = signal<Program[]>([]);
+  subjects = signal<Subject[]>([]);
+  search = signal('');
+  loading = signal(false);
+  showModal = signal(false);
+  saving = signal(false);
+  editingId = signal<number | null>(null);
+
+  filtered = computed(() => {
+    const value = this.search().toLowerCase();
+    return this.programs().filter(p =>
+      p.name?.toLowerCase().includes(value) ||
+      p.codePrefix?.toLowerCase().includes(value)
+    );
+  });
 
   form = {
     name: '',
@@ -29,8 +36,7 @@ export class ProgramsComponent implements OnInit {
 
   constructor(
     private programService: ProgramService,
-    private subjectService: SubjectService,
-    private cdr: ChangeDetectorRef
+    private subjectService: SubjectService
   ) {}
 
   ngOnInit() {
@@ -39,53 +45,46 @@ export class ProgramsComponent implements OnInit {
   }
 
   loadPrograms() {
-    this.loading = true;
+    this.loading.set(true);
     this.programService.getAll().subscribe({
       next: data => {
-        this.programs = [...data];
-        this.filtered = [...data];
-        this.loading = false;
-        this.cdr.detectChanges();
+        this.programs.set([...data]);
+        this.loading.set(false);
       },
-      error: () => { this.loading = false; this.cdr.detectChanges(); }
+      error: () => { this.loading.set(false); }
     });
   }
 
   loadSubjects() {
     this.subjectService.getAll().subscribe({
-      next: data => { this.subjects = data; this.cdr.detectChanges(); }
+      next: data => { this.subjects.set(data); }
     });
   }
 
   onSearch(event: Event) {
-    const value = (event.target as HTMLInputElement).value.toLowerCase();
-    this.search = value;
-    this.filtered = this.programs.filter(p =>
-      p.name?.toLowerCase().includes(value) ||
-      p.codePrefix?.toLowerCase().includes(value)
-    );
-    this.cdr.detectChanges();
+    const value = (event.target as HTMLInputElement).value;
+    this.search.set(value);
   }
 
   openCreate() {
-    this.editingId = null;
+    this.editingId.set(null);
     this.form = { name: '', codePrefix: '', selectedSubjectIds: [] };
-    this.showModal = true;
+    this.showModal.set(true);
   }
 
   openEdit(program: Program) {
-    this.editingId = program.id!;
+    this.editingId.set(program.id!);
     this.form = {
       name: program.name,
       codePrefix: program.codePrefix,
       selectedSubjectIds: program.subjects?.map(s => s.id!) || []
     };
-    this.showModal = true;
+    this.showModal.set(true);
   }
 
   closeModal() {
-    this.showModal = false;
-    this.editingId = null;
+    this.showModal.set(false);
+    this.editingId.set(null);
   }
 
   toggleSubject(subjectId: number) {
@@ -98,23 +97,23 @@ export class ProgramsComponent implements OnInit {
   }
 
   save() {
-    this.saving = true;
+    this.saving.set(true);
     const programData: any = {
       name: this.form.name,
       codePrefix: this.form.codePrefix,
       subjects: this.form.selectedSubjectIds.map(id => ({ id }))
     };
 
-    if (this.editingId) {
-      programData.id = this.editingId;
-      this.programService.update(this.editingId, programData).subscribe({
-        next: () => { this.saving = false; this.closeModal(); this.loadPrograms(); },
-        error: () => { this.saving = false; }
+    if (this.editingId()) {
+      programData.id = this.editingId()!;
+      this.programService.update(this.editingId()!, programData).subscribe({
+        next: () => { this.saving.set(false); this.closeModal(); this.loadPrograms(); },
+        error: () => { this.saving.set(false); }
       });
     } else {
       this.programService.create(programData).subscribe({
-        next: () => { this.saving = false; this.closeModal(); this.loadPrograms(); },
-        error: () => { this.saving = false; }
+        next: () => { this.saving.set(false); this.closeModal(); this.loadPrograms(); },
+        error: () => { this.saving.set(false); }
       });
     }
   }
@@ -123,7 +122,7 @@ export class ProgramsComponent implements OnInit {
     if (!confirm('¿Estás seguro de eliminar este programa?')) return;
     this.programService.delete(id).subscribe({
       next: () => { this.loadPrograms(); },
-      error: (err) => { alert('No se puede eliminar el programa. Puede que tenga materias asociadas.'); }
+      error: () => { alert('No se puede eliminar el programa. Puede que tenga materias asociadas.'); }
     });
   }
 }

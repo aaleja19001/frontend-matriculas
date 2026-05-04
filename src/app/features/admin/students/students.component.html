@@ -1,10 +1,10 @@
-<div style="max-width: 64rem; margin: 0 auto;">
+<div style="max-width: 72rem; margin: 0 auto;">
 
   <!-- Header -->
   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
     <div>
       <h1 style="font-size: 1.5rem; font-weight: 700; color: #0F172A;">Estudiantes</h1>
-      <p style="font-size: 0.875rem; margin-top: 0.25rem; color: #64748B;">{{ students.length }} estudiantes registrados</p>
+      <p style="font-size: 0.875rem; margin-top: 0.25rem; color: #64748B;">{{ students().length }} estudiantes registrados</p>
     </div>
     <div style="display: flex; gap: 1rem; align-items: center;">
 
@@ -13,22 +13,22 @@
         <svg style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 1rem; height: 1rem; color: #94A3B8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
-        <input type="text" (input)="onSearch($event)" placeholder="Buscar..."
+        <input type="text" (input)="onSearch($event)" [value]="search()" placeholder="Buscar estudiante..."
                style="padding: 0.625rem 1rem 0.625rem 2.5rem; border: 1px solid #E2E8F0; border-radius: 0.75rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; width: 14rem;"/>
       </div>
 
       <!-- Botón nuevo -->
-      <button (click)="openCreate(); $event.stopPropagation()"
-        style="display: flex; align-items: center; gap: 0.5rem; background-color: #2563EB; color: white; font-size: 0.875rem; font-weight: 600; padding: 0.625rem 1rem; border-radius: 0.75rem; border: none; cursor: pointer;"
-        onmouseover="this.style.backgroundColor='#1D4ED8'"
-        onmouseout="this.style.backgroundColor='#2563EB'">
-  + Nuevo estudiante
-</button>
+      <button (click)="openCreate()"
+              style="display: flex; align-items: center; gap: 0.5rem; background-color: #2563EB; color: white; font-size: 0.875rem; font-weight: 600; padding: 0.625rem 1rem; border-radius: 0.75rem; border: none; cursor: pointer;"
+              onmouseover="this.style.backgroundColor='#1D4ED8'"
+              onmouseout="this.style.backgroundColor='#2563EB'">
+        + Nuevo Estudiante
+      </button>
     </div>
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading" style="display: flex; justify-content: center; padding: 4rem 0;">
+  <div *ngIf="loading()" style="display: flex; justify-content: center; padding: 4rem 0;">
     <svg style="animation: spin 1s linear infinite; width: 1.5rem; height: 1.5rem; color: #2563EB;" fill="none" viewBox="0 0 24 24">
       <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
       <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
@@ -36,41 +36,38 @@
   </div>
 
   <!-- Tabla -->
-  <div *ngIf="!loading" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; overflow: hidden;">
+  <div *ngIf="!loading()" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; overflow: hidden;">
     <table style="width: 100%; border-collapse: collapse;">
       <thead style="background-color: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
         <tr>
           <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Estudiante</th>
           <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Código</th>
-          <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Cédula</th>
+          <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Identificación</th>
           <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Programa</th>
-          <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Usuario</th>
-          <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Estado</th>
           <th style="padding: 1rem 1.5rem;"></th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let s of filtered"
+        <tr *ngFor="let s of filtered()"
             style="border-bottom: 1px solid #F1F5F9;"
             onmouseover="this.style.backgroundColor='#F8FAFC'"
             onmouseout="this.style.backgroundColor='transparent'">
           <td style="padding: 1rem 1.5rem;">
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-              <div style="width: 2.25rem; height: 2.25rem; border-radius: 9999px; background-color: #EEF2FF; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <span style="font-size: 0.75rem; font-weight: 700; color: #2563EB;">{{ getInitials(s) }}</span>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div style="width: 2.5rem; height: 2.5rem; border-radius: 9999px; background-color: #EEF2FF; color: #2563EB; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem;">
+                {{ getInitials(s) }}
               </div>
-              <p style="font-size: 0.875rem; font-weight: 500; color: #0F172A;">{{ s.firstName }} {{ s.lastName }}</p>
+              <div>
+                <p style="font-size: 0.875rem; font-weight: 600; color: #0F172A;">{{ s.firstName }} {{ s.lastName }}</p>
+                <p style="font-size: 0.75rem; color: #64748B;">{{ s.user?.login }}</p>
+              </div>
             </div>
           </td>
-          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #64748B;">{{ s.studentCode ?? '—' }}</td>
-          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #64748B;">{{ s.nationalId ?? '—' }}</td>
-          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #64748B;">{{ s.program?.name ?? '—' }}</td>
-          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #64748B;">{{ s.user?.login ?? '—' }}</td>
+          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #64748B;">{{ s.studentCode }}</td>
+          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #64748B;">{{ s.nationalId }}</td>
           <td style="padding: 1rem 1.5rem;">
-            <span style="padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;"
-                  [style.background-color]="s.active ? '#D1FAE5' : '#FEE2E2'"
-                  [style.color]="s.active ? '#059669' : '#DC2626'">
-              {{ s.active ? 'Activo' : 'Inactivo' }}
+            <span *ngIf="s.program" style="background-color: #F1F5F9; color: #475569; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 500;">
+              {{ s.program.name }}
             </span>
           </td>
           <td style="padding: 1rem 1.5rem; text-align: right;">
@@ -82,21 +79,25 @@
                 Editar
               </button>
               <button (click)="delete(s.id!)"
-                      [disabled]="deleting === s.id"
+                      [disabled]="deletingId() === s.id"
                       style="background: none; border: none; cursor: pointer; color: #64748B; padding: 0.375rem;"
                       onmouseover="this.style.color='#DC2626'"
                       onmouseout="this.style.color='#64748B'">
-                <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg *ngIf="deletingId() !== s.id" style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                <svg *ngIf="deletingId() === s.id" style="animation: spin 1s linear infinite; width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24">
+                  <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                 </svg>
               </button>
             </div>
           </td>
         </tr>
-        <tr *ngIf="filtered.length === 0">
-          <td colspan="7" style="padding: 4rem 1.5rem; text-align: center; font-size: 0.875rem; color: #94A3B8;">
-            {{ search ? 'No se encontraron resultados para "' + search + '"' : 'No hay estudiantes registrados.' }}
+        <tr *ngIf="filtered().length === 0">
+          <td colspan="5" style="padding: 4rem 1.5rem; text-align: center; font-size: 0.875rem; color: #94A3B8;">
+            {{ search() ? 'No se encontraron estudiantes para "' + search() + '"' : 'No hay estudiantes registrados.' }}
           </td>
         </tr>
       </tbody>
@@ -105,12 +106,12 @@
 </div>
 
 <!-- Modal crear/editar -->
-<div *ngIf="showModal" style="position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(15,23,42,0.4);">
-  <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; width: 100%; max-width: 36rem; padding: 1.5rem; max-height: 90vh; overflow-y: auto;">
+<div *ngIf="showModal()" style="position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(15,23,42,0.4);">
+  <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; width: 100%; max-width: 32rem; padding: 1.5rem; max-height: 90vh; overflow-y: auto;">
 
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
       <h2 style="font-size: 1.125rem; font-weight: 700; color: #0F172A;">
-        {{ editingId ? 'Editar estudiante' : 'Nuevo estudiante' }}
+        {{ editingId() ? 'Editar estudiante' : 'Nuevo estudiante' }}
       </h2>
       <button (click)="closeModal()" style="background: none; border: none; cursor: pointer; color: #64748B;">
         <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,79 +121,65 @@
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 1rem;">
-
-      <!-- Nombre y Apellido -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
         <div>
           <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Nombre</label>
-          <input type="text" [(ngModel)]="form.firstName"
-       (keypress)="onlyLetters($event)"
-       style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
-       placeholder="Juan"/>
+          <input type="text" [(ngModel)]="form.firstName" (keypress)="onlyLetters($event)"
+                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
+                 placeholder="Ej: Juan"/>
         </div>
         <div>
           <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Apellido</label>
-          <input type="text" [(ngModel)]="form.lastName"
-       (keypress)="onlyLetters($event)"
-       style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
-       placeholder="Pérez"/>
+          <input type="text" [(ngModel)]="form.lastName" (keypress)="onlyLetters($event)"
+                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
+                 placeholder="Ej: Pérez"/>
         </div>
       </div>
 
-      <!-- Código y Cédula -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
         <div>
-          <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Código estudiantil</label>
-          <input type="text" [(ngModel)]="form.studentCode"
-       (keypress)="onlyNumbers($event)"
+          <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Código Estudiantil</label>
+          <input type="text" [(ngModel)]="form.studentCode" (keypress)="onlyNumbers($event)"
                  style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
-                 placeholder="20231234"/>
+                 placeholder="Ej: 2023001"/>
         </div>
         <div>
-          <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Cédula</label>
-          <input type="text" [(ngModel)]="form.nationalId"
-       (keypress)="onlyNumbers($event)"
+          <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Identificación</label>
+          <input type="text" [(ngModel)]="form.nationalId" (keypress)="onlyNumbers($event)"
                  style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
-                 placeholder="1234567890"/>
+                 placeholder="Ej: 1000123456"/>
         </div>
       </div>
 
-      <!-- Programa -->
+      <div *ngIf="!editingId()">
+        <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Usuario (Login)</label>
+        <input type="text" [(ngModel)]="form.login"
+               style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
+               placeholder="Ej: juan.perez"/>
+      </div>
+
+      <div *ngIf="!editingId()">
+        <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Contraseña</label>
+        <input type="password" [(ngModel)]="form.password"
+               style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
+               placeholder="********"/>
+      </div>
+
+      <div *ngIf="!editingId()">
+        <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Email</label>
+        <input type="email" [(ngModel)]="form.email"
+               style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
+               placeholder="Ej: juan@universidad.edu"/>
+      </div>
+
       <div>
-        <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Programa</label>
+        <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Programa Académico</label>
         <select [(ngModel)]="form.programId"
-                style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box; cursor: pointer;">
-          <option [ngValue]="null">Sin programa</option>
-          <option *ngFor="let p of programs" [ngValue]="p.id">{{ p.name }}</option>
+                style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;">
+          <option [ngValue]="null">Seleccione un programa...</option>
+          <option *ngFor="let p of programs()" [ngValue]="p.id">{{ p.name }}</option>
         </select>
       </div>
-
-      <!-- Datos de acceso — solo en creación -->
-      <div *ngIf="!editingId" style="border-top: 1px solid #F1F5F9; padding-top: 1rem; margin-top: 0.5rem;">
-        <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B; margin-bottom: 1rem;">Datos de acceso al sistema</p>
-
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
-          <div>
-            <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Usuario</label>
-            <input type="text" [(ngModel)]="form.login"
-                   style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
-                   placeholder="juan.perez"/>
-          </div>
-          <div>
-            <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Email</label>
-            <input type="email" [(ngModel)]="form.email"
-                   style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
-                   placeholder="juan.perez@universidad.edu.co"/>
-          </div>
-          <div>
-            <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Contraseña temporal</label>
-            <input type="password" [(ngModel)]="form.password"
-                   style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
-                   placeholder="••••••••"/>
-          </div>
-        </div>
-      </div>
-
     </div>
 
     <!-- Botones -->
@@ -201,15 +188,16 @@
               style="flex: 1; padding: 0.625rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 500; background: #F1F5F9; color: #64748B; border: none; cursor: pointer;">
         Cancelar
       </button>
-      <button (click)="save()" [disabled]="saving"
+      <button (click)="save()" [disabled]="saving() || !form.firstName || !form.lastName || !form.studentCode || !form.nationalId || (!editingId() && !form.login)"
               style="flex: 1; padding: 0.625rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 600; background-color: #2563EB; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"
+              [style.opacity]="(saving() || !form.firstName || !form.lastName || !form.studentCode || !form.nationalId || (!editingId() && !form.login)) ? 0.5 : 1"
               onmouseover="this.style.backgroundColor='#1D4ED8'"
               onmouseout="this.style.backgroundColor='#2563EB'">
-        <svg *ngIf="saving" style="animation: spin 1s linear infinite; width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24">
+        <svg *ngIf="saving()" style="animation: spin 1s linear infinite; width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24">
           <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/>
           <path style="opacity: 0.75;" fill="white" d="M4 12a8 8 0 018-8v8z"/>
         </svg>
-        {{ saving ? 'Guardando...' : (editingId ? 'Actualizar' : 'Crear estudiante') }}
+        {{ saving() ? 'Guardando...' : (editingId() ? 'Actualizar' : 'Crear Estudiante') }}
       </button>
     </div>
 
