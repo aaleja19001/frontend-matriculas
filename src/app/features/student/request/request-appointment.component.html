@@ -1,0 +1,157 @@
+<div style="max-width: 64rem; margin: 0 auto;">
+
+  <!-- Header -->
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 1.5rem; font-weight: 700; color: #0F172A;">Solicitar Cita de Matrícula</h1>
+    <p style="font-size: 0.875rem; margin-top: 0.25rem; color: #64748B;">Completa el formulario para agendar tu espacio de atención.</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" style="display: flex; justify-content: center; padding: 4rem 0;">
+    <svg style="animation: spin 1s linear infinite; width: 1.5rem; height: 1.5rem; color: #2563EB;" fill="none" viewBox="0 0 24 24">
+      <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+      <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+    </svg>
+  </div>
+
+  <!-- Success State -->
+  <div *ngIf="success()" style="background-color: #DCFCE7; border: 1px solid #BBF7D0; border-radius: 1rem; padding: 2rem; text-align: center; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
+      <div style="background-color: #22C55E; color: white; padding: 0.75rem; border-radius: 9999px;">
+        <svg style="width: 2rem; height: 2rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+    </div>
+    <h2 style="font-size: 1.25rem; font-weight: 700; color: #15803D;">¡Solicitud exitosa!</h2>
+    <p style="font-size: 0.875rem; color: #166534; margin-top: 0.5rem;">Tu cita ha sido programada. Serás redirigido a tu tablero...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error()" style="background-color: #FEE2E2; border: 1px solid #FECACA; border-radius: 0.75rem; padding: 1rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem;">
+    <svg style="width: 1.25rem; height: 1.25rem; color: #DC2626;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <p style="font-size: 0.875rem; color: #991B1B; font-weight: 500;">{{ error() }}</p>
+  </div>
+
+  <div *ngIf="!loading() && !success() && student()" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem;">
+    
+    <!-- Formulario Izquierda -->
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+      
+      <!-- Paso 1: Selección de materias -->
+      <section style="background: white; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+          <div style="background: #2563EB; color: white; width: 1.5rem; height: 1.5rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700;">1</div>
+          <h2 style="font-size: 1.125rem; font-weight: 700; color: #0F172A;">Materias a Matricular</h2>
+        </div>
+
+        <!-- Tabs por día -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div *ngFor="let day of daysOfWeek">
+            <h3 style="font-size: 0.875rem; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+              {{ DayOfWeekNames[day] }}
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr; gap: 0.75rem;">
+              <div *ngFor="let o of getOfferingsByDay(day)" 
+                   (click)="toggleOffering(o.id!)"
+                   style="border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 1rem; cursor: pointer; transition: all 0.2s;"
+                   [style.background-color]="isSelected(o.id!) ? '#EFF6FF' : 'white'"
+                   [style.border-color]="isSelected(o.id!) ? '#2563EB' : '#E2E8F0'"
+                   onmouseover="this.style.borderColor='#2563EB'"
+                   onmouseout="this.style.borderColor = this.style.backgroundColor === '#EFF6FF' ? '#2563EB' : '#E2E8F0'">
+                
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div>
+                    <p style="font-size: 0.875rem; font-weight: 600; color: #0F172A;">{{ o.subject.name }}</p>
+                    <p style="font-size: 0.75rem; color: #64748B;">{{ o.professor.firstName }} {{ o.professor.lastName }}</p>
+                  </div>
+                  <div style="text-align: right;">
+                    <p style="font-size: 0.875rem; font-weight: 600; color: #1E293B;">{{ formatTimeRange(o.startTime, o.endTime) }}</p>
+                    <p style="font-size: 0.75rem;" [style.color]="(o.enrolledCount ?? 0) >= o.capacity ? '#DC2626' : '#15803D'">
+                      Cupos: {{ o.capacity - (o.enrolledCount ?? 0) }} / {{ o.capacity }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <p *ngIf="getOfferingsByDay(day).length === 0" style="font-size: 0.875rem; color: #94A3B8; font-style: italic;">
+                No hay materias ofertadas para este día.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Panel Derecho Sticky -->
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+      
+      <!-- Paso 2: Datos de la cita -->
+      <section style="background: white; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 1.5rem; position: sticky; top: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+          <div style="background: #2563EB; color: white; width: 1.5rem; height: 1.5rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700;">2</div>
+          <h2 style="font-size: 1.125rem; font-weight: 700; color: #0F172A;">Detalles de Programación</h2>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          
+          <div>
+            <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.5rem;">Selecciona un horario disponible</label>
+            <select [(ngModel)]="form.slotId"
+                    style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; outline: none;">
+              <option [ngValue]="null">Elegir franja horaria...</option>
+              <option *ngFor="let s of slots()" [ngValue]="s.id">
+                {{ formatDate(s.startTime) }} ({{ s.availableSpots - (s.bookedSpots ?? 0) }} libres)
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.5rem;">Créditos cursados actualmente</label>
+            <input type="number" [(ngModel)]="form.currentCredits"
+                   style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; outline: none;"
+                   placeholder="Ej: 15"/>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.5rem;">Horario actual (Link o descripción)</label>
+            <textarea [(ngModel)]="form.currentSchedule"
+                      style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; outline: none; min-height: 5rem;"
+                      placeholder="Describe tu horario actual o pega un enlace..."></textarea>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.5rem;">Notas adicionales (Opcional)</label>
+            <textarea [(ngModel)]="form.notes"
+                      style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; outline: none; min-height: 3rem;"
+                      placeholder="Algún comentario para el coordinador..."></textarea>
+          </div>
+
+          <div style="background: #F8FAFC; border-radius: 0.75rem; padding: 1rem; margin-top: 0.5rem;">
+            <p style="font-size: 0.75rem; color: #64748B; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Resumen</p>
+            <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+              <span style="color: #64748B;">Materias seleccionadas:</span>
+              <span style="font-weight: 700; color: #0F172A;">{{ selectedOfferingIds().length }}</span>
+            </div>
+          </div>
+
+          <button (click)="submit()" 
+                  [disabled]="saving() || !form.slotId || !form.currentCredits || selectedOfferingIds().length === 0"
+                  style="width: 100%; background-color: #2563EB; color: white; font-size: 0.875rem; font-weight: 600; padding: 0.75rem; border-radius: 0.75rem; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.5rem;"
+                  [style.opacity]="(saving() || !form.slotId || !form.currentCredits || selectedOfferingIds().length === 0) ? 0.5 : 1"
+                  onmouseover="this.style.backgroundColor='#1D4ED8'"
+                  onmouseout="this.style.backgroundColor='#2563EB'">
+            <svg *ngIf="saving()" style="animation: spin 1s linear infinite; width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24">
+              <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/>
+              <path style="opacity: 0.75;" fill="white" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            {{ saving() ? 'Enviando...' : 'Solicitar Cita' }}
+          </button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

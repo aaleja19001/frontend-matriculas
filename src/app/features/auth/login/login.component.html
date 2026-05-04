@@ -1,37 +1,245 @@
-<div class="min-h-screen bg-gray-100 flex items-center justify-center">
-  <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-    <h2 class="text-2xl font-bold text-center text-blue-700 mb-6">KIMSA - Matrículas</h2>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <div *ngIf="error" class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
-      {{ error }}
+<style>
+  .login-wrap * { font-family: 'DM Sans', sans-serif; }
+
+  .login-wrap {
+    background-color: #F8FAFC;
+    background-image:
+      linear-gradient(rgba(37,99,235,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37,99,235,0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .top-bar {
+    height: 3px;
+    background: linear-gradient(90deg, #2563EB, #10B981);
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 4px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 4px 4px 0px #E2E8F0;
+  }
+
+  .input-field {
+    border: 1px solid #E2E8F0;
+    border-radius: 4px;
+    background: #F8FAFC;
+    color: #0F172A;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.875rem;
+    padding: 10px 16px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+  }
+  .input-field:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    background: #fff;
+  }
+
+  .password-wrapper { position: relative; }
+  .password-wrapper .input-field { padding-right: 44px; }
+
+  .eye-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #64748B;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+  }
+  .eye-btn:hover { color: #2563EB; }
+
+  .char-counter {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: #94A3B8;
+    text-align: right;
+    margin-top: 4px;
+  }
+  .char-counter.limit-near { color: #EF4444; font-weight: 600; }
+
+  .btn-login {
+    width: 100%;
+    background-color: #2563EB;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: none;
+    border-radius: 4px;
+    padding: 11px;
+    cursor: pointer;
+    box-shadow: 3px 3px 0px #1D4ED8;
+    transition: transform 0.1s, box-shadow 0.1s, background-color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    letter-spacing: 0.3px;
+  }
+  .btn-login:hover:not(:disabled) {
+    background-color: #1D4ED8;
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0px #1D4ED8;
+  }
+  .btn-login:active:not(:disabled) {
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px 0px #1D4ED8;
+  }
+  .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .logo-badge {
+    background-color: #2563EB;
+    border-radius: 4px;
+    box-shadow: 2px 2px 0px #1D4ED8;
+  }
+
+  .error-box {
+    background: #FEF2F2;
+    color: #DC2626;
+    border: 1px solid #FECACA;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 0.83rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .label-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #64748B;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spin { animation: spin 0.8s linear infinite; }
+</style>
+
+<div class="login-wrap">
+
+  <div class="top-bar w-full"></div>
+<canvas id="meteorCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0;"></canvas>
+  <div class="flex-1 flex items-center justify-center px-4" style="position:relative; z-index:1;">
+    <div class="w-full max-w-sm">
+
+      <!-- Header -->
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 mb-6">
+          <div class="logo-badge w-9 h-9 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+          </div>
+          <span class="text-xl font-bold" style="color: #0F172A; font-family: 'DM Mono', monospace;">
+            Matricula<span style="color: #2563EB;">+</span>
+          </span>
+        </div>
+        <h2 class="text-2xl font-bold" style="color: #0F172A;">Iniciar sesión</h2>
+        <p class="text-sm mt-2" style="color: #64748B;">Ingresa tus credenciales para continuar</p>
+      </div>
+
+      <!-- Card -->
+      <div class="card p-7">
+
+        <!-- Error -->
+        <div *ngIf="error" class="error-box">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          {{ error }}
+        </div>
+
+        <!-- Usuario -->
+        <div class="mb-4">
+          <label class="label-tag">Usuario</label>
+          <input
+            type="text"
+            [(ngModel)]="username"
+            class="input-field"
+            placeholder="Ingresa tu usuario"
+          />
+        </div>
+
+        <!-- Contraseña -->
+        <div class="mb-6">
+          <label class="label-tag">Contraseña</label>
+          <div class="password-wrapper">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="password"
+              class="input-field"
+              placeholder="••••••••"
+              maxlength="15"
+            />
+            <button
+              type="button"
+              class="eye-btn"
+              (click)="showPassword = !showPassword"
+              [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              <svg *ngIf="!showPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+              <svg *ngIf="showPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+              </svg>
+            </button>
+          </div>
+          <div class="char-counter" [class.limit-near]="password.length >= 18">
+            {{ password.length }} / 15
+          </div>
+          <div class="mt-2 text-right">
+            <a routerLink="/forgot-password" class="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors">
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
+        </div>
+
+        <!-- Botón -->
+        <button
+          class="btn-login"
+          (click)="onLogin()"
+          [disabled]="loading">
+          <svg *ngIf="loading" class="spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/>
+            <path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8z"/>
+          </svg>
+          {{ loading ? 'Ingresando...' : 'Ingresar' }}
+        </button>
+
+      </div>
+
+      <!-- Footer -->
+      <p class="text-center text-xs mt-6" style="color: #94A3B8; font-family: 'DM Mono', monospace;">
+        Matricula+ © 2026 — Sistema de Gestión Académica
+      </p>
+
     </div>
-
-    <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
-      <input
-        type="text"
-        [(ngModel)]="username"
-        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="admin"
-      />
-    </div>
-
-    <div class="mb-6">
-      <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-      <input
-        type="password"
-        [(ngModel)]="password"
-        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="••••••••"
-      />
-    </div>
-
-    <button
-      (click)="onLogin()"
-      [disabled]="loading"
-      class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition"
-    >
-      {{ loading ? 'Ingresando...' : 'Ingresar' }}
-    </button>
   </div>
 </div>

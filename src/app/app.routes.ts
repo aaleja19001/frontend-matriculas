@@ -1,5 +1,33 @@
+// import { Routes } from '@angular/router';
+// import { adminGuard } from './core/auth/auth.guard';
+
+// export const routes: Routes = [
+//   { path: '', redirectTo: 'login', pathMatch: 'full' },
+//   {
+//     path: 'login',
+//     loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
+//   },
+//   {
+//     path: 'admin',
+//     canActivate: [adminGuard],
+//     loadComponent: () => import('./shared/admin-layout/admin-layout.component').then(m => m.AdminLayoutComponent),
+//     children: [
+//       {
+//         path: 'dashboard',
+//         loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.AdminDashboardComponent)
+//       },
+//       {
+//         path: 'appointments',
+//         loadComponent: () => import('./features/admin/appointments/appointments.component').then(m => m.AppointmentsComponent)
+//       },
+//       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+//     ]
+//   },
+//   { path: '**', redirectTo: 'login' }
+// ];
+
 import { Routes } from '@angular/router';
-import { authGuard, adminGuard } from './core/auth/auth.guard';
+import { adminGuard, authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -8,9 +36,67 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
   },
   {
-    path: 'admin/dashboard',
+    path: 'forgot-password',
+    loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
+  },
+  {
+    path: 'admin',
     canActivate: [adminGuard],
-    loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.AdminDashboardComponent)
+    loadComponent: () => import('./shared/admin-layout/admin-layout.component').then(m => m.AdminLayoutComponent),
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.AdminDashboardComponent)
+      },
+      {
+        path: 'slots',
+        loadComponent: () => import('./features/admin/slots/slots.component').then(m => m.SlotsComponent)
+      },
+      {
+        path: 'appointments',
+        loadComponent: () => import('./features/admin/appointments/appointments.component').then(m => m.AppointmentsComponent)
+      },
+      {
+        path: 'students',
+        loadComponent: () => import('./features/admin/students/students.component').then(m => m.StudentsComponent)
+      },
+      {
+        path: 'programs',
+        loadComponent: () => import('./features/admin/programs/programs.component').then(m => m.ProgramsComponent)
+      },
+      {
+        path: 'subjects',
+        loadComponent: () => import('./features/admin/subjects/subjects.component').then(m => m.SubjectsComponent)
+      },
+      {
+        path: 'offerings',
+        loadComponent: () => import('./features/admin/offerings/offerings.component').then(m => m.OfferingsComponent)
+      },
+      {
+        path: 'professors',
+        loadComponent: () => import('./features/admin/professors/professors.component').then(m => m.ProfessorsComponent)
+      }
+    ]
+  },
+  {
+    path: 'student',
+    canActivate: [authGuard],
+    loadComponent: () => import('./shared/student-layout/student-layout.component').then(m => m.StudentLayoutComponent),
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/student/dashboard/student-dashboard.component').then(m => m.StudentDashboardComponent)
+      },
+      {
+        path: 'request',
+        loadComponent: () => import('./features/student/request/request-appointment.component').then(m => m.RequestAppointmentComponent)
+      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+    ]
   },
   { path: '**', redirectTo: 'login' }
 ];

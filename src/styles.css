@@ -1,4 +1,13 @@
-/* You can add global styles to this file, and also import other style files */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.active-link {
+  background-color: theme('colors.blue.700') !important;
+  color: theme('colors.white') !important;
+}
+
+.nav-link:hover {
+  background-color: theme('colors.gray.700');
+  color: theme('colors.white');
+}
