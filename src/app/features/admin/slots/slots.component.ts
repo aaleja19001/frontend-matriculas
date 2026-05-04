@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AvailableSlotService, AvailableSlot } from '../../../core/services/available-slot.service';
@@ -11,11 +11,11 @@ import { AvailableSlotService, AvailableSlot } from '../../../core/services/avai
 })
 export class SlotsComponent implements OnInit {
 
-  slots: AvailableSlot[] = [];
-  loading = false;
-  showModal = false;
-  saving = false;
-  deleting: number | null = null;
+  slots = signal<AvailableSlot[]>([]);
+  loading = signal(false);
+  showModal = signal(false);
+  saving = signal(false);
+  deletingId = signal<number | null>(null);
 
   form: AvailableSlot = {
     startTime: '',
@@ -32,40 +32,54 @@ export class SlotsComponent implements OnInit {
   }
 
   loadSlots() {
-    this.loading = true;
+    this.loading.set(true);
     this.slotService.getAll().subscribe({
-      next: data => { this.slots = [...data]; this.loading = false; },
-      error: () => this.loading = false
+      next: data => { 
+        this.slots.set([...data]); 
+        this.loading.set(false); 
+      },
+      error: () => this.loading.set(false)
     });
   }
 
   openModal() {
     this.form = { startTime: '', endTime: '', availableSpots: 1, active: true, program: { id: 2 } };
-    this.showModal = true;
+    this.showModal.set(true);
   }
 
   closeModal() {
-    this.showModal = false;
+    this.showModal.set(false);
   }
 
   save() {
-    this.saving = true;
+    this.saving.set(true);
     const payload = {
       ...this.form,
       startTime: `${this.form.startTime}:00Z`,
       endTime: `${this.form.endTime}:00Z`
     };
     this.slotService.create(payload).subscribe({
-      next: () => { this.loadSlots(); this.closeModal(); this.saving = false; },
-      error: () => this.saving = false
+      next: () => { 
+        this.loadSlots(); 
+        this.closeModal(); 
+        this.saving.set(false); 
+      },
+      error: () => this.saving.set(false)
     });
   }
 
   delete(id: number) {
-    this.deleting = id;
+    if (!confirm('¿Estás seguro de eliminar este cupo?')) return;
+    this.deletingId.set(id);
     this.slotService.delete(id).subscribe({
-      next: () => { this.loadSlots(); this.deleting = null; },
-      error: () => this.deleting = null
+      next: () => { 
+        this.loadSlots(); 
+        this.deletingId.set(null); 
+      },
+      error: () => {
+        this.deletingId.set(null);
+        alert('Error al eliminar el cupo.');
+      }
     });
   }
 

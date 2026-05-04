@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Appointment, AppointmentService } from '../../../core/services/appointment.service';
@@ -13,8 +13,8 @@ import { StudentService } from '../../../core/services/student.service';
 })
 export class StudentDashboardComponent implements OnInit {
 
-  appointments: Appointment[] = [];
-  loading = false;
+  appointments = signal<Appointment[]>([]);
+  loading = signal(false);
 
   statusLabels: Record<string, string> = {
     PENDING: 'Pendiente',
@@ -24,35 +24,37 @@ export class StudentDashboardComponent implements OnInit {
     CANCELLED: 'Cancelada'
   };
 
+  pending = computed(() => this.appointments().filter(a => a.status === 'PENDING').length);
+  approved = computed(() => this.appointments().filter(a => a.status === 'APPROVED').length);
+  rejected = computed(() => this.appointments().filter(a => a.status === 'REJECTED').length);
+
   constructor(
     private appointmentService: AppointmentService,
     private authService: AuthService,
-    private studentService: StudentService,
-    private cdr: ChangeDetectorRef
+    private studentService: StudentService
   ) {}
 
   ngOnInit() {
     this.loadAppointments();
   }
 
- loadAppointments() {
-  this.loading = true;
-  this.studentService.getMe().subscribe({
-    next: student => {
-      this.appointmentService.getByStudent(student.id!).subscribe({
-        next: data => {
-          this.appointments = [...data];
-          this.loading = false;
-          this.cdr.detectChanges();
-        },
-        error: () => { this.loading = false; this.cdr.detectChanges(); }
-      });
-    },
-    error: () => { this.loading = false; this.cdr.detectChanges(); }
-  });
-}
+  loadAppointments() {
+    this.loading.set(true);
+    this.studentService.getMe().subscribe({
+      next: student => {
+        this.appointmentService.getByStudent(student.id!).subscribe({
+          next: data => {
+            this.appointments.set([...data]);
+            this.loading.set(false);
+          },
+          error: () => { this.loading.set(false); }
+        });
+      },
+      error: () => { this.loading.set(false); }
+    });
+  }
 
-  formatDate(date: string) {
+  formatDate(date: string | undefined) {
     if (!date) return '—';
     return new Date(date).toLocaleString('es-CO', {
       dateStyle: 'medium', timeStyle: 'short'
@@ -69,10 +71,6 @@ export class StudentDashboardComponent implements OnInit {
     };
     return colors[status] || '';
   }
-
-  get pending() { return this.appointments.filter(a => a.status === 'PENDING').length; }
-  get approved() { return this.appointments.filter(a => a.status === 'APPROVED').length; }
-  get rejected() { return this.appointments.filter(a => a.status === 'REJECTED').length; }
 
   cancelAppointment(appointment: Appointment) {
     if (confirm('¿Estás seguro de que quieres cancelar esta cita?')) {

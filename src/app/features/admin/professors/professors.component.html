@@ -4,7 +4,7 @@
   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
     <div>
       <h1 style="font-size: 1.5rem; font-weight: 700; color: #0F172A;">Profesores</h1>
-      <p style="font-size: 0.875rem; margin-top: 0.25rem; color: #64748B;">{{ professors.length }} profesores registrados</p>
+      <p style="font-size: 0.875rem; margin-top: 0.25rem; color: #64748B;">{{ professors().length }} profesores registrados</p>
     </div>
     <div style="display: flex; gap: 1rem; align-items: center;">
 
@@ -13,7 +13,7 @@
         <svg style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 1rem; height: 1rem; color: #94A3B8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
-        <input type="text" (input)="onSearch($event)" placeholder="Buscar profesor..."
+        <input type="text" (input)="onSearch($event)" [value]="search()" placeholder="Buscar profesor..."
                style="padding: 0.625rem 1rem 0.625rem 2.5rem; border: 1px solid #E2E8F0; border-radius: 0.75rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; width: 14rem;"/>
       </div>
 
@@ -28,7 +28,7 @@
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading" style="display: flex; justify-content: center; padding: 4rem 0;">
+  <div *ngIf="loading()" style="display: flex; justify-content: center; padding: 4rem 0;">
     <svg style="animation: spin 1s linear infinite; width: 1.5rem; height: 1.5rem; color: #2563EB;" fill="none" viewBox="0 0 24 24">
       <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
       <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
@@ -36,7 +36,7 @@
   </div>
 
   <!-- Tabla -->
-  <div *ngIf="!loading" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; overflow: hidden;">
+  <div *ngIf="!loading()" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; overflow: hidden;">
     <table style="width: 100%; border-collapse: collapse;">
       <thead style="background-color: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
         <tr>
@@ -48,7 +48,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let p of filtered"
+        <tr *ngFor="let p of filtered()"
             style="border-bottom: 1px solid #F1F5F9;"
             onmouseover="this.style.backgroundColor='#F8FAFC'"
             onmouseout="this.style.backgroundColor='transparent'">
@@ -84,9 +84,9 @@
             </div>
           </td>
         </tr>
-        <tr *ngIf="filtered.length === 0">
+        <tr *ngIf="filtered().length === 0">
           <td colspan="5" style="padding: 4rem 1.5rem; text-align: center; font-size: 0.875rem; color: #94A3B8;">
-            {{ search ? 'No se encontraron profesores para "' + search + '"' : 'No hay profesores registrados.' }}
+            {{ search() ? 'No se encontraron profesores para "' + search() + '"' : 'No hay profesores registrados.' }}
           </td>
         </tr>
       </tbody>
@@ -95,12 +95,12 @@
 </div>
 
 <!-- Modal crear/editar -->
-<div *ngIf="showModal" style="position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(15,23,42,0.4);">
+<div *ngIf="showModal()" style="position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(15,23,42,0.4);">
   <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; width: 100%; max-width: 32rem; padding: 1.5rem; max-height: 90vh; overflow-y: auto;">
 
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
       <h2 style="font-size: 1.125rem; font-weight: 700; color: #0F172A;">
-        {{ editingId ? 'Editar profesor' : 'Nuevo profesor' }}
+        {{ editingId() ? 'Editar profesor' : 'Nuevo profesor' }}
       </h2>
       <button (click)="closeModal()" style="background: none; border: none; cursor: pointer; color: #64748B;">
         <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,16 +149,16 @@
               style="flex: 1; padding: 0.625rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 500; background: #F1F5F9; color: #64748B; border: none; cursor: pointer;">
         Cancelar
       </button>
-      <button (click)="save()" [disabled]="saving || !form.firstName || !form.lastName || !form.email || !form.nationalId"
+      <button (click)="save()" [disabled]="saving() || !form.firstName || !form.lastName || !form.email || !form.nationalId"
               style="flex: 1; padding: 0.625rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 600; background-color: #2563EB; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"
-              [style.opacity]="(saving || !form.firstName || !form.lastName || !form.email || !form.nationalId) ? 0.5 : 1"
+              [style.opacity]="(saving() || !form.firstName || !form.lastName || !form.email || !form.nationalId) ? 0.5 : 1"
               onmouseover="this.style.backgroundColor='#1D4ED8'"
               onmouseout="this.style.backgroundColor='#2563EB'">
-        <svg *ngIf="saving" style="animation: spin 1s linear infinite; width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24">
+        <svg *ngIf="saving()" style="animation: spin 1s linear infinite; width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24">
           <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/>
           <path style="opacity: 0.75;" fill="white" d="M4 12a8 8 0 018-8v8z"/>
         </svg>
-        {{ saving ? 'Guardando...' : (editingId ? 'Actualizar' : 'Crear Profesor') }}
+        {{ saving() ? 'Guardando...' : (editingId() ? 'Actualizar' : 'Crear Profesor') }}
       </button>
     </div>
 

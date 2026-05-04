@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -16,14 +16,14 @@ import { DayOfWeek, DayOfWeekNames, SubjectOffering, SubjectOfferingService } fr
 })
 export class RequestAppointmentComponent implements OnInit {
 
-  slots: AvailableSlot[] = [];
-  offerings: SubjectOffering[] = [];
-  student: Student | null = null;
-  selectedOfferings: number[] = [];
-  loading = false;
-  saving = false;
-  success = false;
-  error = '';
+  slots = signal<AvailableSlot[]>([]);
+  offerings = signal<SubjectOffering[]>([]);
+  student = signal<Student | null>(null);
+  selectedOfferingIds = signal<number[]>([]);
+  loading = signal(false);
+  saving = signal(false);
+  success = signal(false);
+  error = signal('');
   
   DayOfWeekNames = DayOfWeekNames;
   daysOfWeek: DayOfWeek[] = [DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY];
@@ -40,8 +40,7 @@ export class RequestAppointmentComponent implements OnInit {
     private appointmentService: AppointmentService,
     private studentService: StudentService,
     private offeringService: SubjectOfferingService,
-    private router: Router,
-    private cdr: ChangeDetectorRef
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -49,18 +48,17 @@ export class RequestAppointmentComponent implements OnInit {
   }
 
   loadData() {
-    this.loading = true;
+    this.loading.set(true);
     this.studentService.getMe().subscribe({
       next: student => {
-        this.student = student;
+        this.student.set(student);
         // Check if student already has active appointments
         this.appointmentService.getByStudent(student.id!).subscribe({
           next: appointments => {
             const activeAppointments = appointments.filter(a => a.status !== 'CANCELLED');
             if (activeAppointments.length > 0) {
-              this.error = 'Ya tienes una cita activa. No puedes programar más de una cita a la vez.';
-              this.loading = false;
-              this.cdr.detectChanges();
+              this.error.set('Ya tienes una cita activa. No puedes programar más de una cita a la vez.');
+              this.loading.set(false);
               return;
             }
             
@@ -69,56 +67,55 @@ export class RequestAppointmentComponent implements OnInit {
               offerings: this.offeringService.getAll()
             }).subscribe({
               next: ({ slots, offerings }) => {
-                this.slots = slots.filter(s => s.active && (s.bookedSpots ?? 0) < s.availableSpots);
-                this.offerings = offerings;
-                this.loading = false;
-                this.cdr.detectChanges();
+                this.slots.set(slots.filter(s => s.active && (s.bookedSpots ?? 0) < s.availableSpots));
+                this.offerings.set(offerings);
+                this.loading.set(false);
               },
-              error: () => { this.loading = false; this.cdr.detectChanges(); }
+              error: () => { this.loading.set(false); }
             });
           },
-          error: () => { this.loading = false; this.cdr.detectChanges(); }
+          error: () => { this.loading.set(false); }
         });
       },
-      error: () => { this.loading = false; this.cdr.detectChanges(); }
+      error: () => { this.loading.set(false); }
     });
   }
 
- toggleOffering(id: number) {
-  const idx = this.selectedOfferings.indexOf(id);
-  if (idx === -1) {
-    if (this.selectedOfferings.length >= 7) {
-      this.error = 'No puedes seleccionar más de 7 materias.';
-      return;
-    }
-
-    const newOffering = this.offerings.find(o => o.id === id);
-    if (newOffering) {
-      // Validar cupos
-      if ((newOffering.enrolledCount ?? 0) >= newOffering.capacity) {
-        this.error = `La materia ${newOffering.subject.name} no tiene cupos disponibles.`;
+  toggleOffering(id: number) {
+    const ids = this.selectedOfferingIds();
+    const idx = ids.indexOf(id);
+    if (idx === -1) {
+      if (ids.length >= 7) {
+        this.error.set('No puedes seleccionar más de 7 materias.');
         return;
       }
 
-      // Validar choques de horario
-      const conflict = this.checkConflicts(newOffering);
-      if (conflict) {
-        this.error = `Conflicto de horario entre ${newOffering.subject.name} y ${conflict.subject.name}`;
-        return;
-      }
-    }
+      const newOffering = this.offerings().find(o => o.id === id);
+      if (newOffering) {
+        // Validar cupos
+        if ((newOffering.enrolledCount ?? 0) >= newOffering.capacity) {
+          this.error.set(`La materia ${newOffering.subject.name} no tiene cupos disponibles.`);
+          return;
+        }
 
-    this.error = '';
-    this.selectedOfferings = [...this.selectedOfferings, id];
-  } else {
-    this.selectedOfferings = this.selectedOfferings.filter(s => s !== id);
-    this.error = '';
+        // Validar choques de horario
+        const conflict = this.checkConflicts(newOffering);
+        if (conflict) {
+          this.error.set(`Conflicto de horario entre ${newOffering.subject.name} y ${conflict.subject.name}`);
+          return;
+        }
+      }
+
+      this.error.set('');
+      this.selectedOfferingIds.set([...ids, id]);
+    } else {
+      this.selectedOfferingIds.set(ids.filter(s => s !== id));
+      this.error.set('');
+    }
   }
-  this.cdr.detectChanges();
-}
 
   checkConflicts(newOffering: SubjectOffering): SubjectOffering | null {
-    const selected = this.offerings.filter(o => this.selectedOfferings.includes(o.id!));
+    const selected = this.offerings().filter(o => this.selectedOfferingIds().includes(o.id!));
     for (const s of selected) {
       // Solo verificar conflictos si son el mismo día
       if (s.dayOfWeek === newOffering.dayOfWeek && this.isOverlapping(newOffering, s)) {
@@ -143,11 +140,11 @@ export class RequestAppointmentComponent implements OnInit {
   }
 
   getOfferingsByDay(day: DayOfWeek): SubjectOffering[] {
-    return this.offerings.filter(o => o.dayOfWeek === day);
+    return this.offerings().filter(o => o.dayOfWeek === day);
   }
 
   isSelected(id: number) {
-    return this.selectedOfferings.includes(id);
+    return this.selectedOfferingIds().includes(id);
   }
 
   formatDate(date: string) {
@@ -170,24 +167,24 @@ export class RequestAppointmentComponent implements OnInit {
 
   submit() {
     if (!this.form.slotId) {
-      this.error = 'Selecciona un slot disponible';
+      this.error.set('Selecciona un slot disponible');
       return;
     }
     if (!this.form.currentCredits || this.form.currentCredits <= 0) {
-      this.error = 'Ingresa tus créditos actuales';
+      this.error.set('Ingresa tus créditos actuales');
       return;
     }
-    if (this.selectedOfferings.length === 0) {
-      this.error = 'Debes seleccionar al menos una materia';
+    if (this.selectedOfferingIds().length === 0) {
+      this.error.set('Debes seleccionar al menos una materia');
       return;
     }
-    if (!this.student?.id) {
-      this.error = 'No se encontró tu perfil de estudiante';
+    if (!this.student()?.id) {
+      this.error.set('No se encontró tu perfil de estudiante');
       return;
     }
 
-    this.saving = true;
-    this.error = '';
+    this.saving.set(true);
+    this.error.set('');
 
     const payload = {
       currentCredits: this.form.currentCredits,
@@ -196,23 +193,21 @@ export class RequestAppointmentComponent implements OnInit {
       status: 'PENDING',
       requestDate: new Date().toISOString(),
       availableSlot: { id: this.form.slotId },
-      student: { id: this.student.id },
-      enrollments: this.selectedOfferings.map(id => ({
+      student: { id: this.student()!.id },
+      enrollments: this.selectedOfferingIds().map(id => ({
         subjectOffering: { id }
       }))
     };
 
     this.appointmentService.create(payload).subscribe({
       next: () => {
-        this.saving = false;
-        this.success = true;
-        this.cdr.detectChanges();
+        this.saving.set(false);
+        this.success.set(true);
         setTimeout(() => this.router.navigate(['/student/dashboard']), 2000);
       },
       error: (err) => {
-        this.saving = false;
-        this.error = err.error?.detail || err.error?.message || 'Error al crear la cita. Intenta de nuevo.';
-        this.cdr.detectChanges();
+        this.saving.set(false);
+        this.error.set(err.error?.detail || err.error?.message || 'Error al crear la cita. Intenta de nuevo.');
       }
     });
   }

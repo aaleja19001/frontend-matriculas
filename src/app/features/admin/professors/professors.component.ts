@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProfessorService, Professor } from '../../../core/services/professor.service';
@@ -11,13 +11,21 @@ import { ProfessorService, Professor } from '../../../core/services/professor.se
 })
 export class ProfessorsComponent implements OnInit {
 
-  professors: Professor[] = [];
-  filtered: Professor[] = [];
-  loading = false;
-  search = '';
-  showModal = false;
-  saving = false;
-  editingId: number | null = null;
+  professors = signal<Professor[]>([]);
+  search = signal('');
+  loading = signal(false);
+  showModal = signal(false);
+  saving = signal(false);
+  editingId = signal<number | null>(null);
+
+  filtered = computed(() => {
+    const value = this.search().toLowerCase();
+    return this.professors().filter(p =>
+      p.firstName?.toLowerCase().includes(value) ||
+      p.lastName?.toLowerCase().includes(value) ||
+      p.nationalId?.toLowerCase().includes(value)
+    );
+  });
 
   form = {
     firstName: '',
@@ -28,8 +36,7 @@ export class ProfessorsComponent implements OnInit {
   };
 
   constructor(
-    private professorService: ProfessorService,
-    private cdr: ChangeDetectorRef
+    private professorService: ProfessorService
   ) {}
 
   ngOnInit() {
@@ -37,37 +44,29 @@ export class ProfessorsComponent implements OnInit {
   }
 
   loadProfessors() {
-    this.loading = true;
+    this.loading.set(true);
     this.professorService.getAll().subscribe({
       next: data => {
-        this.professors = [...data];
-        this.filtered = [...data];
-        this.loading = false;
-        this.cdr.detectChanges();
+        this.professors.set([...data]);
+        this.loading.set(false);
       },
-      error: () => { this.loading = false; this.cdr.detectChanges(); }
+      error: () => { this.loading.set(false); }
     });
   }
 
   onSearch(event: Event) {
-    const value = (event.target as HTMLInputElement).value.toLowerCase();
-    this.search = value;
-    this.filtered = this.professors.filter(p =>
-      p.firstName?.toLowerCase().includes(value) ||
-      p.lastName?.toLowerCase().includes(value) ||
-      p.nationalId?.toLowerCase().includes(value)
-    );
-    this.cdr.detectChanges();
+    const value = (event.target as HTMLInputElement).value;
+    this.search.set(value);
   }
 
   openCreate() {
-    this.editingId = null;
+    this.editingId.set(null);
     this.form = { firstName: '', lastName: '', email: '', nationalId: '', active: true };
-    this.showModal = true;
+    this.showModal.set(true);
   }
 
   openEdit(professor: Professor) {
-    this.editingId = professor.id!;
+    this.editingId.set(professor.id!);
     this.form = {
       firstName: professor.firstName,
       lastName: professor.lastName,
@@ -75,16 +74,16 @@ export class ProfessorsComponent implements OnInit {
       nationalId: professor.nationalId,
       active: professor.active
     };
-    this.showModal = true;
+    this.showModal.set(true);
   }
 
   closeModal() {
-    this.showModal = false;
-    this.editingId = null;
+    this.showModal.set(false);
+    this.editingId.set(null);
   }
 
   save() {
-    this.saving = true;
+    this.saving.set(true);
     const professorData: Professor = {
       firstName: this.form.firstName,
       lastName: this.form.lastName,
@@ -93,16 +92,16 @@ export class ProfessorsComponent implements OnInit {
       active: this.form.active
     };
 
-    if (this.editingId) {
-      professorData.id = this.editingId;
-      this.professorService.update(this.editingId, professorData).subscribe({
-        next: () => { this.saving = false; this.closeModal(); this.loadProfessors(); },
-        error: () => { this.saving = false; }
+    if (this.editingId()) {
+      professorData.id = this.editingId()!;
+      this.professorService.update(this.editingId()!, professorData).subscribe({
+        next: () => { this.saving.set(false); this.closeModal(); this.loadProfessors(); },
+        error: () => { this.saving.set(false); }
       });
     } else {
       this.professorService.create(professorData).subscribe({
-        next: () => { this.saving = false; this.closeModal(); this.loadProfessors(); },
-        error: () => { this.saving = false; }
+        next: () => { this.saving.set(false); this.closeModal(); this.loadProfessors(); },
+        error: () => { this.saving.set(false); }
       });
     }
   }

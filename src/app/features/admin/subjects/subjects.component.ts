@@ -1,9 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SubjectService, Subject } from '../../../core/services/subject.service';
 import { ProgramService, Program } from '../../../core/services/program.service';
-import { ProfessorService, Professor } from '../../../core/services/professor.service';
 
 @Component({
   selector: 'app-subjects',
@@ -13,15 +12,21 @@ import { ProfessorService, Professor } from '../../../core/services/professor.se
 })
 export class SubjectsComponent implements OnInit {
 
-  subjects: Subject[] = [];
-  filtered: Subject[] = [];
-  programs: Program[] = [];
-  professors: Professor[] = [];
-  loading = false;
-  search = '';
-  showModal = false;
-  saving = false;
-  editingId: number | null = null;
+  subjects = signal<Subject[]>([]);
+  programs = signal<Program[]>([]);
+  search = signal('');
+  loading = signal(false);
+  showModal = signal(false);
+  saving = signal(false);
+  editingId = signal<number | null>(null);
+
+  filtered = computed(() => {
+    const value = this.search().toLowerCase();
+    return this.subjects().filter(s =>
+      s.name?.toLowerCase().includes(value) ||
+      s.code?.toLowerCase().includes(value)
+    );
+  });
 
   form = {
     name: '',
@@ -32,8 +37,7 @@ export class SubjectsComponent implements OnInit {
 
   constructor(
     private subjectService: SubjectService,
-    private programService: ProgramService,
-    private cdr: ChangeDetectorRef
+    private programService: ProgramService
   ) {}
 
   ngOnInit() {
@@ -42,54 +46,47 @@ export class SubjectsComponent implements OnInit {
   }
 
   loadSubjects() {
-    this.loading = true;
+    this.loading.set(true);
     this.subjectService.getAll().subscribe({
       next: data => {
-        this.subjects = [...data];
-        this.filtered = [...data];
-        this.loading = false;
-        this.cdr.detectChanges();
+        this.subjects.set([...data]);
+        this.loading.set(false);
       },
-      error: () => { this.loading = false; this.cdr.detectChanges(); }
+      error: () => { this.loading.set(false); }
     });
   }
 
   loadPrograms() {
     this.programService.getAll().subscribe({
-      next: data => { this.programs = data; this.cdr.detectChanges(); }
+      next: data => { this.programs.set(data); }
     });
   }
 
   onSearch(event: Event) {
-    const value = (event.target as HTMLInputElement).value.toLowerCase();
-    this.search = value;
-    this.filtered = this.subjects.filter(s =>
-      s.name?.toLowerCase().includes(value) ||
-      s.code?.toLowerCase().includes(value)
-    );
-    this.cdr.detectChanges();
+    const value = (event.target as HTMLInputElement).value;
+    this.search.set(value);
   }
 
   openCreate() {
-    this.editingId = null;
+    this.editingId.set(null);
     this.form = { name: '', code: '', credits: 3, selectedProgramIds: [] };
-    this.showModal = true;
+    this.showModal.set(true);
   }
 
   openEdit(subject: Subject) {
-    this.editingId = subject.id!;
+    this.editingId.set(subject.id!);
     this.form = {
       name: subject.name,
       code: subject.code,
       credits: subject.credits,
       selectedProgramIds: subject.programs?.map(p => p.id) || []
     };
-    this.showModal = true;
+    this.showModal.set(true);
   }
 
   closeModal() {
-    this.showModal = false;
-    this.editingId = null;
+    this.showModal.set(false);
+    this.editingId.set(null);
   }
 
   toggleProgram(programId: number) {
@@ -102,7 +99,7 @@ export class SubjectsComponent implements OnInit {
   }
 
   save() {
-    this.saving = true;
+    this.saving.set(true);
     const subjectData: any = {
       name: this.form.name,
       code: this.form.code,
@@ -110,16 +107,16 @@ export class SubjectsComponent implements OnInit {
       programs: this.form.selectedProgramIds.map(id => ({ id }))
     };
 
-    if (this.editingId) {
-      subjectData.id = this.editingId;
-      this.subjectService.update(this.editingId, subjectData).subscribe({
-        next: () => { this.saving = false; this.closeModal(); this.loadSubjects(); },
-        error: () => { this.saving = false; }
+    if (this.editingId()) {
+      subjectData.id = this.editingId()!;
+      this.subjectService.update(this.editingId()!, subjectData).subscribe({
+        next: () => { this.saving.set(false); this.closeModal(); this.loadSubjects(); },
+        error: () => { this.saving.set(false); }
       });
     } else {
       this.subjectService.create(subjectData).subscribe({
-        next: () => { this.saving = false; this.closeModal(); this.loadSubjects(); },
-        error: () => { this.saving = false; }
+        next: () => { this.saving.set(false); this.closeModal(); this.loadSubjects(); },
+        error: () => { this.saving.set(false); }
       });
     }
   }

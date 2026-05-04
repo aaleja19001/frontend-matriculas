@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -13,15 +13,24 @@ import { environment } from '../../../../environments/environment';
 })
 export class StudentsComponent implements OnInit {
 
-  students: Student[] = [];
-  filtered: Student[] = [];
-  programs: any[] = [];
-  loading = false;
-  search = '';
-  showModal = false;
-  saving = false;
-  deleting: number | null = null;
-  editingId: number | null = null;
+  students = signal<Student[]>([]);
+  programs = signal<any[]>([]);
+  search = signal('');
+  loading = signal(false);
+  showModal = signal(false);
+  saving = signal(false);
+  deletingId = signal<number | null>(null);
+  editingId = signal<number | null>(null);
+
+  filtered = computed(() => {
+    const value = this.search().toLowerCase();
+    return this.students().filter(s =>
+      s.firstName?.toLowerCase().includes(value) ||
+      s.lastName?.toLowerCase().includes(value) ||
+      s.studentCode?.toLowerCase().includes(value) ||
+      s.nationalId?.toLowerCase().includes(value)
+    );
+  });
 
   form = {
     firstName: '',
@@ -36,10 +45,7 @@ export class StudentsComponent implements OnInit {
 
   constructor(
     private studentService: StudentService,
-    private http: HttpClient,
-    private cdr: ChangeDetectorRef,
-    private ngZone: NgZone
-
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
@@ -47,57 +53,41 @@ export class StudentsComponent implements OnInit {
     this.loadPrograms();
   }
 
- loadStudents() {
-  this.loading = true;
-  this.studentService.getAll().subscribe({
-    next: data => {
-      this.ngZone.run(() => {
-        this.students = [...data];
-        this.filtered = [...data];
-        this.loading = false;
-      });
-    },
-    error: () => {
-      this.ngZone.run(() => {
-        this.loading = false;
-      });
-    }
-  });
-}
+  loadStudents() {
+    this.loading.set(true);
+    this.studentService.getAll().subscribe({
+      next: data => {
+        this.students.set([...data]);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      }
+    });
+  }
 
-loadPrograms() {
-  this.http.get<any[]>(`${environment.apiUrl}/programs`).subscribe({
-    next: data => {
-      console.log('programs:', data);
-      this.programs = [...data];
-      this.cdr.detectChanges();
-    },
-    error: (err) => console.error('error programs:', err)
-  });
-}
+  loadPrograms() {
+    this.http.get<any[]>(`${environment.apiUrl}/programs`).subscribe({
+      next: data => {
+        this.programs.set([...data]);
+      },
+      error: (err) => console.error('error programs:', err)
+    });
+  }
 
   onSearch(event: Event) {
-    const value = (event.target as HTMLInputElement).value.toLowerCase();
-    this.search = value;
-    this.filtered = this.students.filter(s =>
-      s.firstName?.toLowerCase().includes(value) ||
-      s.lastName?.toLowerCase().includes(value) ||
-      s.studentCode?.toLowerCase().includes(value) ||
-      s.nationalId?.toLowerCase().includes(value)
-    );
-    this.cdr.detectChanges();
+    const value = (event.target as HTMLInputElement).value;
+    this.search.set(value);
   }
 
   openCreate() {
-  console.log('openCreate called');
-  this.editingId = null;
-  this.form = { firstName: '', lastName: '', studentCode: '', nationalId: '', login: '', password: '', email: '', programId: null };
-  this.showModal = true;
-  this.cdr.detectChanges();
-}
+    this.editingId.set(null);
+    this.form = { firstName: '', lastName: '', studentCode: '', nationalId: '', login: '', password: '', email: '', programId: null };
+    this.showModal.set(true);
+  }
 
   openEdit(student: Student) {
-    this.editingId = student.id!;
+    this.editingId.set(student.id!);
     this.form = {
       firstName: student.firstName ?? '',
       lastName: student.lastName ?? '',
@@ -108,84 +98,84 @@ loadPrograms() {
       email: '',
       programId: student.program?.id ?? null
     };
-    this.showModal = true;
+    this.showModal.set(true);
   }
 
-closeModal() {
-  this.showModal = false;
-  this.editingId = null;
-  this.cdr.markForCheck();
-  this.cdr.detectChanges();
-}
-
- save() {
-  this.saving = true;
-
-  if (this.editingId) {
-    const payload: any = {
-      id: this.editingId,
-      firstName: this.form.firstName,
-      lastName: this.form.lastName,
-      studentCode: this.form.studentCode,
-      nationalId: this.form.nationalId,
-      active: true,
-      program: this.form.programId ? { id: this.form.programId } : null
-    };
-    this.http.put<any>(`${environment.apiUrl}/students/${this.editingId}`, payload).subscribe({
-      next: () => {
-        this.saving = false;
-        this.showModal = false;
-        this.editingId = null;
-        this.cdr.markForCheck();
-        this.cdr.detectChanges();
-        this.loadStudents();
-      },
-      error: () => { this.saving = false; this.cdr.detectChanges(); }
-    });
-  } else {
-    const userPayload = {
-      login: this.form.login,
-      firstName: this.form.firstName,
-      lastName: this.form.lastName,
-      email: this.form.email,
-      password: this.form.password,
-      activated: true,
-      langKey: 'es',
-      authorities: ['ROLE_USER']
-    };
-
-    this.http.post<any>(`${environment.apiUrl}/admin/users`, userPayload).subscribe({
-      next: user => {
-        const studentPayload = {
-          firstName: this.form.firstName,
-          lastName: this.form.lastName,
-          studentCode: this.form.studentCode,
-          nationalId: this.form.nationalId,
-          active: true,
-          user: { id: user.id },
-          program: this.form.programId ? { id: this.form.programId } : null
-        };
-        this.http.post<any>(`${environment.apiUrl}/students`, studentPayload).subscribe({
-          next: () => {
-            this.saving = false;
-            this.closeModal();
-            this.loadStudents();
-            this.cdr.detectChanges();
-          },
-          error: () => { this.saving = false; this.cdr.detectChanges(); }
-        });
-      },
-      error: () => { this.saving = false; this.cdr.detectChanges(); }
-    });
+  closeModal() {
+    this.showModal.set(false);
+    this.editingId.set(null);
   }
-} 
+
+  save() {
+    this.saving.set(true);
+
+    if (this.editingId()) {
+      const payload: any = {
+        id: this.editingId(),
+        firstName: this.form.firstName,
+        lastName: this.form.lastName,
+        studentCode: this.form.studentCode,
+        nationalId: this.form.nationalId,
+        active: true,
+        program: this.form.programId ? { id: this.form.programId } : null
+      };
+      this.http.put<any>(`${environment.apiUrl}/students/${this.editingId()}`, payload).subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.closeModal();
+          this.loadStudents();
+        },
+        error: () => { this.saving.set(false); }
+      });
+    } else {
+      const userPayload = {
+        login: this.form.login,
+        firstName: this.form.firstName,
+        lastName: this.form.lastName,
+        email: this.form.email,
+        password: this.form.password,
+        activated: true,
+        langKey: 'es',
+        authorities: ['ROLE_USER']
+      };
+
+      this.http.post<any>(`${environment.apiUrl}/admin/users`, userPayload).subscribe({
+        next: user => {
+          const studentPayload = {
+            firstName: this.form.firstName,
+            lastName: this.form.lastName,
+            studentCode: this.form.studentCode,
+            nationalId: this.form.nationalId,
+            active: true,
+            user: { id: user.id },
+            program: this.form.programId ? { id: this.form.programId } : null
+          };
+          this.http.post<any>(`${environment.apiUrl}/students`, studentPayload).subscribe({
+            next: () => {
+              this.saving.set(false);
+              this.closeModal();
+              this.loadStudents();
+            },
+            error: () => { this.saving.set(false); }
+          });
+        },
+        error: () => { this.saving.set(false); }
+      });
+    }
+  }
 
   delete(id: number) {
     if (!confirm('¿Estás seguro de eliminar este estudiante?')) return;
-    this.deleting = id;
+    this.deletingId.set(id);
     this.http.delete(`${environment.apiUrl}/students/${id}`).subscribe({
-      next: () => { this.deleting = null; this.loadStudents(); },
-      error: () => { this.deleting = null; }
+      next: () => {
+        this.deletingId.set(null);
+        this.loadStudents();
+      },
+      error: () => {
+        this.deletingId.set(null);
+        alert('Error al eliminar el estudiante.');
+      }
     });
   }
 
@@ -194,16 +184,16 @@ closeModal() {
   }
 
   onlyLetters(event: KeyboardEvent) {
-  const pattern = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
-  if (!pattern.test(event.key)) {
-    event.preventDefault();
+    const pattern = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
+    if (!pattern.test(event.key)) {
+      event.preventDefault();
+    }
   }
-}
 
-onlyNumbers(event: KeyboardEvent) {
-  const pattern = /^[0-9]$/;
-  if (!pattern.test(event.key)) {
-    event.preventDefault();
+  onlyNumbers(event: KeyboardEvent) {
+    const pattern = /^[0-9]$/;
+    if (!pattern.test(event.key)) {
+      event.preventDefault();
+    }
   }
-}
 }

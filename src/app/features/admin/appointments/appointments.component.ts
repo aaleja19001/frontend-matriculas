@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppointmentService, Appointment } from '../../../core/services/appointment.service';
 
@@ -6,15 +6,14 @@ import { AppointmentService, Appointment } from '../../../core/services/appointm
   selector: 'app-appointments',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './appointments.component.html',
-  changeDetection: ChangeDetectionStrategy.Default
+  templateUrl: './appointments.component.html'
 })
 export class AppointmentsComponent implements OnInit {
 
-  appointments: Appointment[] = [];
-  loading = false;
-  selected: Appointment | null = null;
-  processing: number | null = null;
+  appointments = signal<Appointment[]>([]);
+  loading = signal(false);
+  selected = signal<Appointment | null>(null);
+  processingId = signal<number | null>(null);
 
   statusLabels: Record<string, string> = {
     PENDING: 'Pendiente',
@@ -25,8 +24,7 @@ export class AppointmentsComponent implements OnInit {
   };
 
   constructor(
-    private appointmentService: AppointmentService,
-    private cdr: ChangeDetectorRef
+    private appointmentService: AppointmentService
   ) {}
 
   ngOnInit() {
@@ -34,49 +32,52 @@ export class AppointmentsComponent implements OnInit {
   }
 
   loadAppointments() {
-    this.loading = true;
+    this.loading.set(true);
     this.appointmentService.getAll().subscribe({
       next: data => {
-        this.appointments = [...data];
-        this.loading = false;
-        this.cdr.detectChanges();
+        this.appointments.set([...data]);
+        this.loading.set(false);
       },
       error: (err) => {
         console.error('error:', err);
-        this.loading = false;
-        this.cdr.detectChanges();
+        this.loading.set(false);
       }
     });
   }
 
- openDetail(appointment: Appointment) {
-  console.log('openDetail:', appointment);
-  this.selected = appointment;
-  this.cdr.detectChanges();
-}
+  openDetail(appointment: Appointment) {
+    this.selected.set(appointment);
+  }
 
   closeDetail() {
-  this.selected = null;
-  this.cdr.detectChanges();
-}
+    this.selected.set(null);
+  }
 
   approve(id: number) {
-    this.processing = id;
+    this.processingId.set(id);
     this.appointmentService.updateStatus(id, 'APPROVED').subscribe({
-      next: () => { this.loadAppointments(); this.closeDetail(); this.processing = null; },
-      error: () => this.processing = null
+      next: () => { 
+        this.loadAppointments(); 
+        this.closeDetail(); 
+        this.processingId.set(null); 
+      },
+      error: () => this.processingId.set(null)
     });
   }
 
   reject(id: number) {
-    this.processing = id;
+    this.processingId.set(id);
     this.appointmentService.updateStatus(id, 'REJECTED').subscribe({
-      next: () => { this.loadAppointments(); this.closeDetail(); this.processing = null; },
-      error: () => this.processing = null
+      next: () => { 
+        this.loadAppointments(); 
+        this.closeDetail(); 
+        this.processingId.set(null); 
+      },
+      error: () => this.processingId.set(null)
     });
   }
 
-  formatDate(date: string) {
+  formatDate(date: string | undefined) {
     if (!date) return '—';
     return new Date(date).toLocaleString('es-CO', {
       dateStyle: 'medium', timeStyle: 'short'
