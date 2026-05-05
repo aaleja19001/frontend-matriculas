@@ -28,9 +28,13 @@ import { AuthService } from '../../core/auth/auth.service';
              style="font-size: 0.875rem; font-weight: 500; color: #64748B; text-decoration: none;">
             Mis citas
           </a>
-          <a routerLink="/student/request"
+          <a routerLink="/student/request" routerLinkActive="active-nav"
              style="font-size: 0.875rem; font-weight: 500; color: #64748B; text-decoration: none;">
             Solicitar cita
+          </a>
+          <a routerLink="/student/profile" routerLinkActive="active-nav"
+             style="font-size: 0.875rem; font-weight: 500; color: #64748B; text-decoration: none;">
+            Mi Perfil
           </a>
           <div style="display: flex; align-items: center; gap: 0.75rem; padding-left: 1rem; border-left: 1px solid #E2E8F0;">
             <div style="width: 2rem; height: 2rem; background-color: #EEF2FF; border-radius: 9999px; display: flex; align-items: center; justify-content: center;">
@@ -52,6 +56,12 @@ import { AuthService } from '../../core/auth/auth.service';
         <router-outlet />
       </main>
 
+      <style>
+        .active-nav {
+          color: #2563EB !important;
+          font-weight: 600 !important;
+        }
+      </style>
     </div>
   `
 })
