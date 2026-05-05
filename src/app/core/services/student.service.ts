@@ -32,4 +32,8 @@ export class StudentService {
   getMe() {
     return this.http.get<Student>(`${this.url}/me`);
   }
+
+  update(id: number, student: Student) {
+    return this.http.put<Student>(`${this.url}/${id}`, student);
+  }
 }
