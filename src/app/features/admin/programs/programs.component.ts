@@ -20,8 +20,17 @@ export class ProgramsComponent implements OnInit {
   saving = signal(false);
   editingId = signal<number | null>(null);
 
+  stats = computed(() => {
+    const all = this.programs();
+    return {
+      total: all.length,
+      totalSubjects: all.reduce((acc, p) => acc + (p.subjects?.length || 0), 0)
+    };
+  });
+
   filtered = computed(() => {
-    const value = this.search().toLowerCase();
+    const value = this.search().toLowerCase().trim();
+    if (!value) return this.programs();
     return this.programs().filter(p =>
       p.name?.toLowerCase().includes(value) ||
       p.codePrefix?.toLowerCase().includes(value)
@@ -124,5 +133,12 @@ export class ProgramsComponent implements OnInit {
       next: () => { this.loadPrograms(); },
       error: () => { alert('No se puede eliminar el programa. Puede que tenga materias asociadas.'); }
     });
+  }
+
+  onlyLetters(event: KeyboardEvent) {
+    const pattern = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
+    if (!pattern.test(event.key)) {
+      event.preventDefault();
+    }
   }
 }
