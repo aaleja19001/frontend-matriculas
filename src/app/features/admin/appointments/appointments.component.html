@@ -1,136 +1,216 @@
-<div style="max-width: 64rem; margin: 0 auto;">
+<div style="max-width: 68rem; margin: 0 auto;">
 
   <!-- Header -->
-  <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end;">
+  <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start;">
     <div>
-      <h1 style="font-size: 1.5rem; font-weight: 700; color: #0F172A;">Solicitudes de Citas</h1>
-      <p style="font-size: 0.875rem; margin-top: 0.25rem; color: #64748B;">{{ filteredAppointments().length }} citas filtradas</p>
+      <h1 style="font-size: 1.875rem; font-weight: 800; color: #0F172A; letter-spacing: -0.025em;">Solicitudes de Citas</h1>
+      <p style="font-size: 0.875rem; margin-top: 0.25rem; color: #64748B;">Gestiona y supervisa las citas de matrícula de los estudiantes.</p>
+    </div>
+    <button (click)="downloadPDF()" 
+            style="background-color: #2563EB; color: white; border: none; padding: 0.625rem 1.25rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);"
+            onmouseover="this.style.backgroundColor='#1D4ED8'; this.style.transform='translateY(-1px)'"
+            onmouseout="this.style.backgroundColor='#2563EB'; this.style.transform='translateY(0)'">
+      <svg style="width: 1.125rem; height: 1.125rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      Exportar Reporte
+    </button>
+  </div>
+
+  <!-- Stats Cards -->
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem;">
+    <div style="background: white; padding: 1.25rem; border-radius: 1rem; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+      <p style="font-size: 0.75rem; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em;">Total Citas</p>
+      <p style="font-size: 1.5rem; font-weight: 700; color: #0F172A; margin-top: 0.25rem;">{{ stats().total }}</p>
+    </div>
+    <div style="background: white; padding: 1.25rem; border-radius: 1rem; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+      <p style="font-size: 0.75rem; font-weight: 600; color: #F59E0B; text-transform: uppercase; letter-spacing: 0.05em;">Pendientes</p>
+      <p style="font-size: 1.5rem; font-weight: 700; color: #0F172A; margin-top: 0.25rem;">{{ stats().pending }}</p>
+    </div>
+    <div style="background: white; padding: 1.25rem; border-radius: 1rem; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+      <p style="font-size: 0.75rem; font-weight: 600; color: #10B981; text-transform: uppercase; letter-spacing: 0.05em;">Aprobadas</p>
+      <p style="font-size: 1.5rem; font-weight: 700; color: #0F172A; margin-top: 0.25rem;">{{ stats().approved }}</p>
+    </div>
+    <div style="background: white; padding: 1.25rem; border-radius: 1rem; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+      <p style="font-size: 0.75rem; font-weight: 600; color: #EF4444; text-transform: uppercase; letter-spacing: 0.05em;">Rechazadas</p>
+      <p style="font-size: 1.5rem; font-weight: 700; color: #0F172A; margin-top: 0.25rem;">{{ stats().rejected }}</p>
+    </div>
+  </div>
+
+  <!-- Filters & Search -->
+  <div style="background: white; padding: 1.25rem; border-radius: 1rem 1rem 0 0; border: 1px solid #E2E8F0; border-bottom: none; display: flex; gap: 1rem; align-items: center;">
+    <div style="flex: 1; position: relative;">
+      <svg style="position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%); width: 1.125rem; height: 1.125rem; color: #94A3B8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      <input type="text" (input)="onSearchChange($event)" placeholder="Buscar por estudiante o código..." 
+             style="width: 100%; padding: 0.625rem 1rem 0.625rem 2.75rem; border-radius: 0.75rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none; transition: border-color 0.2s;"
+             onfocus="this.style.borderColor='#2563EB'; this.style.boxShadow='0 0 0 3px rgba(37,99,235,0.1)'"
+             onblur="this.style.borderColor='#E2E8F0'; this.style.boxShadow='none'">
     </div>
     
-    <div style="display: flex; gap: 1rem; align-items: center;">
-      <div>
-        <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #64748B; margin-bottom: 0.25rem;">Filtrar por estado</label>
-        <select (change)="onStatusChange($event)" 
-                style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 0.5rem; padding: 0.375rem 2rem 0.375rem 0.75rem; font-size: 0.875rem; color: #0F172A; cursor: pointer; outline: none;">
-          <option value="ALL">Todos los estados</option>
-          <option value="PENDING">Pendiente</option>
-          <option value="APPROVED">Aprobada</option>
-          <option value="REJECTED">Rechazada</option>
-          <option value="RESCHEDULED">Reprogramada</option>
-          <option value="CANCELLED">Cancelada</option>
-        </select>
-      </div>
-
-      <button (click)="downloadPDF()" 
-              style="background-color: #2563EB; color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; margin-top: auto;"
-              onmouseover="this.style.backgroundColor='#1D4ED8'"
-              onmouseout="this.style.backgroundColor='#2563EB'">
-        <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        Descargar PDF
-      </button>
-    </div>
+    <select (change)="onStatusChange($event)" 
+            style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 2.5rem 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; cursor: pointer; outline: none; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1rem;">
+      <option value="ALL">Todos los estados</option>
+      <option value="PENDING">Pendientes</option>
+      <option value="APPROVED">Aprobadas</option>
+      <option value="REJECTED">Rechazadas</option>
+    </select>
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading()" style="display: flex; justify-content: center; padding: 4rem 0;">
-    <svg style="animation: spin 1s linear infinite; width: 1.5rem; height: 1.5rem; color: #2563EB;" fill="none" viewBox="0 0 24 24">
-      <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-      <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-    </svg>
+  <div *ngIf="loading()" style="background: white; border: 1px solid #E2E8F0; border-radius: 0 0 1rem 1rem; padding: 6rem 0; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+    <div style="width: 2.5rem; height: 2.5rem; border: 3px solid #F1F5F9; border-top-color: #2563EB; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+    <p style="color: #64748B; font-size: 0.875rem; font-weight: 500;">Cargando solicitudes...</p>
   </div>
 
-  <!-- Tabla -->
-  <div *ngIf="!loading()" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; overflow: hidden;">
+  <!-- Table -->
+  <div *ngIf="!loading()" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 0 0 1rem 1rem; overflow: hidden;">
     <table style="width: 100%; border-collapse: collapse;">
       <thead style="background-color: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
         <tr>
-          <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Estudiante</th>
-          <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Fecha y Hora</th>
-          <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Estado</th>
-          <th style="padding: 1rem 1.5rem;"></th>
+          <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Estudiante</th>
+          <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Fecha y Hora</th>
+          <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Estado</th>
+          <th style="padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B; text-align: right;">Acciones</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let a of filteredAppointments()"
-            style="border-bottom: 1px solid #F1F5F9;"
+            style="border-bottom: 1px solid #F1F5F9; transition: background-color 0.15s;"
             onmouseover="this.style.backgroundColor='#F8FAFC'"
             onmouseout="this.style.backgroundColor='transparent'">
-          <td style="padding: 1rem 1.5rem;">
-            <p style="font-size: 0.875rem; font-weight: 600; color: #0F172A;">{{ getStudentName(a) }}</p>
-            <p style="font-size: 0.75rem; color: #64748B;">{{ a.student?.studentCode }}</p>
+          <td style="padding: 1.25rem 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 2rem; height: 2rem; border-radius: 50%; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;">
+                {{ a.student?.firstName?.charAt(0) }}{{ a.student?.lastName?.charAt(0) }}
+              </div>
+              <div>
+                <p style="font-size: 0.875rem; font-weight: 600; color: #0F172A;">{{ getStudentName(a) }}</p>
+                <p style="font-size: 0.75rem; color: #64748B;">{{ a.student?.studentCode }}</p>
+              </div>
+            </div>
           </td>
-          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #64748B;">
-            {{ formatDate(a.availableSlot?.startTime) }}
+          <td style="padding: 1.25rem 1.5rem; font-size: 0.875rem; color: #475569;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <svg style="width: 1rem; height: 1rem; color: #94A3B8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              {{ formatDate(a.availableSlot?.startTime) }}
+            </div>
           </td>
-          <td style="padding: 1rem 1.5rem;">
+          <td style="padding: 1.25rem 1.5rem;">
             <span [ngClass]="{
-              'bg-yellow-100 text-yellow-800': a.status === 'PENDING',
-              'bg-green-100 text-green-800': a.status === 'APPROVED',
-              'bg-red-100 text-red-800': a.status === 'REJECTED'
-            }" style="padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">
+              'bg-amber-50 text-amber-700 border-amber-200': a.status === 'PENDING',
+              'bg-emerald-50 text-emerald-700 border-emerald-200': a.status === 'APPROVED',
+              'bg-rose-50 text-rose-700 border-rose-200': a.status === 'REJECTED'
+            }" style="padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; border: 1px solid transparent; display: inline-flex; align-items: center; gap: 0.375rem;">
+              <span style="width: 0.375rem; height: 0.375rem; border-radius: 50%; background: currentColor;"></span>
               {{ statusLabels[a.status] }}
             </span>
           </td>
-          <td style="padding: 1rem 1.5rem; text-align: right;">
-            <button (click)="openDetail(a)"
-                    style="background: #F1F5F9; border: none; cursor: pointer; color: #64748B; padding: 0.375rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 500;"
-                    onmouseover="this.style.backgroundColor='#E2E8F0'"
-                    onmouseout="this.style.backgroundColor='#F1F5F9'">
-              Ver Detalles
-            </button>
+          <td style="padding: 1.25rem 1.5rem; text-align: right;">
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+              <ng-container *ngIf="a.status === 'PENDING'">
+                <button (click)="reject(a.id!)" 
+                        title="Rechazar"
+                        style="background: #FFF1F2; border: none; cursor: pointer; color: #E11D48; padding: 0.5rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                        onmouseover="this.style.backgroundColor='#FFE4E6'"
+                        onmouseout="this.style.backgroundColor='#FFF1F2'">
+                  <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+                <button (click)="approve(a.id!)" 
+                        title="Aprobar"
+                        style="background: #ECFDF5; border: none; cursor: pointer; color: #059669; padding: 0.5rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                        onmouseover="this.style.backgroundColor='#D1FAE5'"
+                        onmouseout="this.style.backgroundColor='#ECFDF5'">
+                  <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </button>
+              </ng-container>
+              <button (click)="openDetail(a)"
+                      style="background: #F8FAFC; border: 1px solid #E2E8F0; cursor: pointer; color: #64748B; padding: 0.375rem 0.875rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 600; transition: all 0.2s;"
+                      onmouseover="this.style.backgroundColor='#F1F5F9'; this.style.borderColor='#CBD5E1'"
+                      onmouseout="this.style.backgroundColor='#F8FAFC'; this.style.borderColor='#E2E8F0'">
+                Detalles
+              </button>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredAppointments().length === 0 && !loading()" 
+         style="padding: 6rem 2rem; text-align: center;">
+      <div style="width: 4rem; height: 4rem; background: #F8FAFC; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+        <svg style="width: 2rem; height: 2rem; color: #CBD5E1;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+      </div>
+      <h3 style="font-size: 1.125rem; font-weight: 700; color: #1F2937; margin-bottom: 0.5rem;">No se encontraron resultados</h3>
+      <p style="color: #64748B; font-size: 0.875rem; max-width: 20rem; margin: 0 auto;">No hay citas que coincidan con los criterios de búsqueda o filtros seleccionados.</p>
+    </div>
   </div>
 </div>
 
-<!-- Modal Detalles -->
-<div *ngIf="selected()" style="position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(15,23,42,0.4);">
-  <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; width: 100%; max-width: 32rem; padding: 1.5rem;">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
-      <h2 style="font-size: 1.125rem; font-weight: 700; color: #0F172A;">Detalles de la Cita</h2>
-      <button (click)="closeDetail()" style="background: none; border: none; cursor: pointer; color: #64748B;">
+<style>
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
+
+<!-- Modal Detalles (Sin cambios significativos pero mantenido para consistencia) -->
+<div *ngIf="selected()" style="position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(15,23,42,0.4); backdrop-filter: blur(4px);">
+  <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1.5rem; width: 100%; max-width: 32rem; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+      <h2 style="font-size: 1.25rem; font-weight: 800; color: #0F172A;">Detalles de la Cita</h2>
+      <button (click)="closeDetail()" style="background: #F8FAFC; border: none; cursor: pointer; color: #64748B; width: 2.25rem; height: 2.25rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#F1F5F9'">
         <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
     </div>
 
-    <div style="display: flex; flex-direction: column; gap: 1rem;">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-bottom: 1px solid #F1F5F9; padding-bottom: 1rem;">
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
         <div>
-          <p style="font-size: 0.75rem; color: #64748B; text-transform: uppercase; font-weight: 600;">Estudiante</p>
-          <p style="font-size: 0.875rem; font-weight: 600; color: #0F172A;">{{ getStudentName(selected()!) }}</p>
+          <p style="font-size: 0.75rem; color: #64748B; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Estudiante</p>
+          <p style="font-size: 1rem; font-weight: 600; color: #0F172A; margin-top: 0.25rem;">{{ getStudentName(selected()!) }}</p>
         </div>
         <div>
-          <p style="font-size: 0.75rem; color: #64748B; text-transform: uppercase; font-weight: 600;">Código</p>
-          <p style="font-size: 0.875rem; font-weight: 600; color: #0F172A;">{{ selected()!.student?.studentCode }}</p>
+          <p style="font-size: 0.75rem; color: #64748B; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Código</p>
+          <p style="font-size: 1rem; font-weight: 600; color: #0F172A; margin-top: 0.25rem;">{{ selected()!.student?.studentCode }}</p>
         </div>
       </div>
       <div>
-        <p style="font-size: 0.75rem; color: #64748B; text-transform: uppercase; font-weight: 600;">Horario Programado</p>
-        <p style="font-size: 0.875rem; font-weight: 600; color: #0F172A;">{{ formatDate(selected()!.availableSlot?.startTime) }} - {{ formatDate(selected()!.availableSlot?.endTime) }}</p>
+        <p style="font-size: 0.75rem; color: #64748B; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Horario Programado</p>
+        <p style="font-size: 1rem; font-weight: 600; color: #0F172A; margin-top: 0.25rem;">{{ formatDate(selected()!.availableSlot?.startTime) }}</p>
       </div>
       <div>
-        <p style="font-size: 0.75rem; color: #64748B; text-transform: uppercase; font-weight: 600;">Estado Actual</p>
-        <span style="display: inline-block; margin-top: 0.25rem; background-color: #F1F5F9; color: #475569; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">
+        <p style="font-size: 0.75rem; color: #64748B; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Estado Actual</p>
+        <span [ngClass]="{
+              'bg-amber-50 text-amber-700': selected()!.status === 'PENDING',
+              'bg-emerald-50 text-emerald-700': selected()!.status === 'APPROVED',
+              'bg-rose-50 text-rose-700': selected()!.status === 'REJECTED'
+            }" style="display: inline-block; margin-top: 0.5rem; padding: 0.375rem 0.875rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">
           {{ statusLabels[selected()!.status] }}
         </span>
       </div>
     </div>
 
     <!-- Acciones -->
-    <div *ngIf="selected()!.status === 'PENDING'" style="display: flex; gap: 0.75rem; margin-top: 2rem;">
+    <div *ngIf="selected()!.status === 'PENDING'" style="display: flex; gap: 1rem; margin-top: 2.5rem;">
       <button (click)="reject(selected()!.id!)" [disabled]="processingId() === selected()!.id"
-              style="flex: 1; padding: 0.625rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 600; background: #FEE2E2; color: #991B1B; border: none; cursor: pointer;">
-        Rechazar
+              style="flex: 1; padding: 0.75rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 700; background: #FFF1F2; color: #E11D48; border: none; cursor: pointer; transition: all 0.2s;"
+              onmouseover="this.style.backgroundColor='#FFE4E6'">
+        Rechazar Solicitud
       </button>
       <button (click)="approve(selected()!.id!)" [disabled]="processingId() === selected()!.id"
-              style="flex: 1; padding: 0.625rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 600; background-color: #15803D; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-        <svg *ngIf="processingId() === selected()!.id" style="animation: spin 1s linear infinite; width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24">
+              style="flex: 1; padding: 0.75rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 700; background-color: #2563EB; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);"
+              onmouseover="this.style.backgroundColor='#1D4ED8'">
+        <svg *ngIf="processingId() === selected()!.id" style="animation: spin 1s linear infinite; width: 1.125rem; height: 1.125rem;" fill="none" viewBox="0 0 24 24">
           <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/>
           <path style="opacity: 0.75;" fill="white" d="M4 12a8 8 0 018-8v8z"/>
         </svg>
