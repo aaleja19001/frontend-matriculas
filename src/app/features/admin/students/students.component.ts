@@ -24,6 +24,8 @@ export class StudentsComponent implements OnInit {
   deletingId = signal<number | null>(null);
   editingId = signal<number | null>(null);
   validationErrors = signal<{ [key: string]: string }>({});
+  credentialsModal = signal<{ login: string; password?: string } | null>(null);
+
 
   stats = computed(() => {
     const all = this.students();
@@ -150,7 +152,9 @@ export class StudentsComponent implements OnInit {
         authorities: ['ROLE_USER']
       };
 
-      this.http.post<any>(`${environment.apiUrl}/admin/users`, userPayload).subscribe({
+      const sendEmail = localStorage.getItem('admin_send_credentials_email') !== 'false';
+
+      this.http.post<any>(`${environment.apiUrl}/admin/users?sendEmail=${sendEmail}`, userPayload).subscribe({
         next: user => {
           const studentPayload = {
             firstName: this.form.firstName,
@@ -166,6 +170,9 @@ export class StudentsComponent implements OnInit {
               this.saving.set(false);
               this.closeModal();
               this.loadStudents();
+              if (!sendEmail && user.password) {
+                this.credentialsModal.set({ login: user.login, password: user.password });
+              }
             },
             error: () => { this.saving.set(false); }
           });

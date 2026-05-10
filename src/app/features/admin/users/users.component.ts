@@ -19,6 +19,8 @@ export class UsersComponent implements OnInit {
   editingLogin = signal<string | null>(null);
   search = signal('');
   validationErrors = signal<{ [key: string]: string }>({});
+  credentialsModal = signal<{ login: string; password?: string } | null>(null);
+
 
   form: AdminUser = { login: '', firstName: '', lastName: '', email: '', activated: true, langKey: 'es', authorities: [] };
 
@@ -94,8 +96,16 @@ export class UsersComponent implements OnInit {
         error: () => { this.saving.set(false); }
       });
     } else {
-      this.userService.create(payload).subscribe({
-        next: () => { this.saving.set(false); this.closeModal(); this.loadUsers(); },
+      const sendEmail = localStorage.getItem('admin_send_credentials_email') !== 'false';
+      this.userService.create(payload, sendEmail).subscribe({
+        next: (createdUser) => { 
+          this.saving.set(false); 
+          this.closeModal(); 
+          this.loadUsers(); 
+          if (!sendEmail && createdUser.password) {
+            this.credentialsModal.set({ login: createdUser.login, password: createdUser.password });
+          }
+        },
         error: () => { this.saving.set(false); }
       });
     }
