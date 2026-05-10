@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Appointment, AppointmentService } from '../../../core/services/appointment.service';
 import { StudentService } from '../../../core/services/student.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-student-dashboard',
@@ -15,6 +16,7 @@ export class StudentDashboardComponent implements OnInit {
 
   appointments = signal<Appointment[]>([]);
   loading = signal(false);
+  studentName = signal('');
 
   statusLabels: Record<string, string> = {
     PENDING: 'Pendiente',
@@ -26,15 +28,17 @@ export class StudentDashboardComponent implements OnInit {
 
   pending = computed(() => this.appointments().filter(a => a.status === 'PENDING').length);
   approved = computed(() => this.appointments().filter(a => a.status === 'APPROVED').length);
-  rejected = computed(() => this.appointments().filter(a => a.status === 'REJECTED').length);
+  total = computed(() => this.appointments().length);
 
   constructor(
     private appointmentService: AppointmentService,
     private authService: AuthService,
-    private studentService: StudentService
+    private studentService: StudentService,
+    private toast: ToastService
   ) {}
 
   ngOnInit() {
+    this.studentName.set(this.authService.currentUser()?.sub || 'Estudiante');
     this.loadAppointments();
   }
 
@@ -47,10 +51,16 @@ export class StudentDashboardComponent implements OnInit {
             this.appointments.set([...data]);
             this.loading.set(false);
           },
-          error: () => { this.loading.set(false); }
+          error: () => { 
+            this.toast.error('Error al cargar tus citas');
+            this.loading.set(false); 
+          }
         });
       },
-      error: () => { this.loading.set(false); }
+      error: () => { 
+        this.toast.error('Error al identificar tu perfil');
+        this.loading.set(false); 
+      }
     });
   }
 
@@ -61,31 +71,22 @@ export class StudentDashboardComponent implements OnInit {
     });
   }
 
-  getStatusColor(status: string) {
-    const colors: Record<string, string> = {
-      PENDING: 'background-color: #FEF3C7; color: #D97706;',
-      APPROVED: 'background-color: #D1FAE5; color: #059669;',
-      REJECTED: 'background-color: #FEE2E2; color: #DC2626;',
-      RESCHEDULED: 'background-color: #DBEAFE; color: #2563EB;',
-      CANCELLED: 'background-color: #F1F5F9; color: #64748B;'
-    };
-    return colors[status] || '';
-  }
-
   cancelAppointment(appointment: Appointment) {
     if (confirm('¿Estás seguro de que quieres cancelar esta cita?')) {
       this.appointmentService.cancel(appointment.id!).subscribe({
         next: () => {
+          this.toast.success('Cita cancelada correctamente');
           this.loadAppointments();
         },
         error: (err) => {
-          alert('Error al cancelar la cita: ' + (err.error?.detail || err.error?.message || 'Error desconocido'));
+          const msg = err.error?.detail || err.error?.message || 'Error desconocido';
+          this.toast.error('No se pudo cancelar: ' + msg);
         }
       });
     }
   }
 
   canCancel(appointment: Appointment) {
-    return appointment.status !== 'CANCELLED';
+    return appointment.status === 'PENDING';
   }
 }

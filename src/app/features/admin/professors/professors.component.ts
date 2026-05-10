@@ -18,12 +18,23 @@ export class ProfessorsComponent implements OnInit {
   saving = signal(false);
   editingId = signal<number | null>(null);
 
+  stats = computed(() => {
+    const all = this.professors();
+    return {
+      total: all.length,
+      active: all.filter(p => p.active).length,
+      inactive: all.filter(p => !p.active).length
+    };
+  });
+
   filtered = computed(() => {
-    const value = this.search().toLowerCase();
+    const value = this.search().toLowerCase().trim();
+    if (!value) return this.professors();
     return this.professors().filter(p =>
       p.firstName?.toLowerCase().includes(value) ||
       p.lastName?.toLowerCase().includes(value) ||
-      p.nationalId?.toLowerCase().includes(value)
+      p.nationalId?.toLowerCase().includes(value) ||
+      p.email?.toLowerCase().includes(value)
     );
   });
 
@@ -112,5 +123,19 @@ export class ProfessorsComponent implements OnInit {
       next: () => { this.loadProfessors(); },
       error: () => { alert('No se puede eliminar el profesor. Puede que esté asociado a materias.'); }
     });
+  }
+
+  onlyLetters(event: KeyboardEvent) {
+    const pattern = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
+    if (!pattern.test(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  onlyNumbers(event: KeyboardEvent) {
+    const pattern = /^[0-9]$/;
+    if (!pattern.test(event.key)) {
+      event.preventDefault();
+    }
   }
 }

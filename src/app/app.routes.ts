@@ -16,6 +16,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
   },
   {
+    path: 'change-password',
+    loadComponent: () => import('./features/auth/change-password/change-password.component').then(m => m.ChangePasswordComponent)
+  },
+  {
     path: 'admin',
     canActivate: [adminGuard],
     loadComponent: () => import('./shared/admin-layout/admin-layout.component').then(m => m.AdminLayoutComponent),
@@ -70,6 +74,10 @@ export const routes: Routes = [
       {
         path: 'profile',
         loadComponent: () => import('./features/student/profile/profile.component').then(m => m.ProfileComponent)
+      },
+      {
+        path: 'profile/change-password',
+        loadComponent: () => import('./features/student/profile/change-password/student-change-password.component').then(m => m.StudentChangePasswordComponent)
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

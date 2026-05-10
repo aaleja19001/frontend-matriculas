@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AvailableSlotService, AvailableSlot } from '../../../core/services/available-slot.service';
@@ -16,6 +16,15 @@ export class SlotsComponent implements OnInit {
   showModal = signal(false);
   saving = signal(false);
   deletingId = signal<number | null>(null);
+
+  stats = computed(() => {
+    const all = this.slots();
+    return {
+      total: all.length,
+      active: all.filter(s => s.active).length,
+      totalSpots: all.reduce((acc, s) => acc + (s.availableSpots ?? 0), 0)
+    };
+  });
 
   form: AvailableSlot = {
     startTime: '',
