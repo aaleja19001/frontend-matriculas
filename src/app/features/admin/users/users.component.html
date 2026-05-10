@@ -86,7 +86,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
           <div>
             <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 0.5rem;">Login</label>
-            <input type="text" [(ngModel)]="form.login" [disabled]="editingLogin() !== null" style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem;" />
+            <input type="text" [(ngModel)]="form.login" [disabled]="editingLogin() !== null" style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem;" appMaxLength="login" />
           </div>
           <div>
             <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 0.5rem;">Roles</label>
@@ -100,17 +100,17 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
           <div>
             <label style="display:block; font-size:0.75rem; font-weight:700; color:#64748B; text-transform:uppercase; margin-bottom:0.5rem;">Nombre</label>
-            <input type="text" [(ngModel)]="form.firstName" style="width:100%; border:1px solid #E2E8F0; border-radius:0.75rem; padding:0.75rem 1rem;" />
+            <input type="text" [(ngModel)]="form.firstName" style="width:100%; border:1px solid #E2E8F0; border-radius:0.75rem; padding:0.75rem 1rem;" appMaxLength="firstName" />
           </div>
           <div>
             <label style="display:block; font-size:0.75rem; font-weight:700; color:#64748B; text-transform:uppercase; margin-bottom:0.5rem;">Apellido</label>
-            <input type="text" [(ngModel)]="form.lastName" style="width:100%; border:1px solid #E2E8F0; border-radius:0.75rem; padding:0.75rem 1rem;" />
+            <input type="text" [(ngModel)]="form.lastName" style="width:100%; border:1px solid #E2E8F0; border-radius:0.75rem; padding:0.75rem 1rem;" appMaxLength="lastName" />
           </div>
         </div>
 
         <div>
           <label style="display:block; font-size:0.75rem; font-weight:700; color:#64748B; text-transform:uppercase; margin-bottom:0.5rem;">Email</label>
-          <input type="email" [(ngModel)]="form.email" style="width:100%; border:1px solid #E2E8F0; border-radius:0.75rem; padding:0.75rem 1rem;" />
+          <input type="email" [(ngModel)]="form.email" style="width:100%; border:1px solid #E2E8F0; border-radius:0.75rem; padding:0.75rem 1rem;" appMaxLength="email" />
         </div>
       </div>
 

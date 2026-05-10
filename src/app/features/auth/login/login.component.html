@@ -180,6 +180,7 @@
             [(ngModel)]="username"
             class="input-field"
             placeholder="Ingresa tu usuario"
+            appMaxLength="login"
           />
         </div>
 
@@ -192,7 +193,7 @@
               [(ngModel)]="password"
               class="input-field"
               placeholder="••••••••"
-              maxlength="15"
+              appMaxLength="password"
             />
             <button
               type="button"

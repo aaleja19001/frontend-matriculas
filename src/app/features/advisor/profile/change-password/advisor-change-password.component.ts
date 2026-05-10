@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { MaxLengthDirective } from '../../../../shared/directives/max-length.directive';
 
 @Component({
   selector: 'app-advisor-change-password',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, MaxLengthDirective],
   template: `
     <div class="max-w-md mx-auto">
       <!-- Header -->
@@ -39,20 +40,23 @@ import { AuthService } from '../../../../core/auth/auth.service';
           <div style="display: flex; flex-direction: column; gap: 0.5rem;">
             <label style="font-size: 0.875rem; font-weight: 600; color: #334155;">Contraseña Actual</label>
             <input type="password" [(ngModel)]="currentPassword" name="currentPassword" required
-                   style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none;">
+                   style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none;"
+                   appMaxLength="password">
           </div>
 
           <div style="display: flex; flex-direction: column; gap: 0.5rem;">
             <label style="font-size: 0.875rem; font-weight: 600; color: #334155;">Nueva Contraseña</label>
             <input type="password" [(ngModel)]="newPassword" name="newPassword" required
                    style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none;"
-                   placeholder="Mínimo 8 caracteres">
+                   placeholder="Mínimo 8 caracteres"
+                   appMaxLength="password">
           </div>
 
           <div style="display: flex; flex-direction: column; gap: 0.5rem;">
             <label style="font-size: 0.875rem; font-weight: 600; color: #334155;">Confirmar Nueva Contraseña</label>
             <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" required
-                   style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none;">
+                   style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none;"
+                   appMaxLength="password">
           </div>
 
           <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 1rem;">

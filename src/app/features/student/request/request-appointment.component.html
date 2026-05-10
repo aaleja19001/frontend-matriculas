@@ -133,14 +133,16 @@
             <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.5rem;">Horario actual (Link o descripción)</label>
             <textarea [(ngModel)]="form.currentSchedule"
                       style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; outline: none; min-height: 5rem;"
-                      placeholder="Describe tu horario actual o pega un enlace..."></textarea>
+                      placeholder="Describe tu horario actual o pega un enlace..."
+                      appMaxLength="description"></textarea>
           </div>
 
           <div>
             <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.5rem;">Notas adicionales (Opcional)</label>
             <textarea [(ngModel)]="form.notes"
                       style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; outline: none; min-height: 3rem;"
-                      placeholder="Algún comentario para el coordinador..."></textarea>
+                      placeholder="Algún comentario para el coordinador..."
+                      appMaxLength="description"></textarea>
           </div>
 
           <div style="background: #F8FAFC; border-radius: 0.75rem; padding: 1rem; margin-top: 0.5rem;">

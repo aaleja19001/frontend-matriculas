@@ -3,11 +3,12 @@ import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { StudentService, Student } from '../../../core/services/student.service';
+import { MaxLengthDirective } from '../../../shared/directives/max-length.directive';
 
 @Component({
   selector: 'app-student-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, MaxLengthDirective],
   templateUrl: './profile.component.html'
 })
 export class ProfileComponent implements OnInit {

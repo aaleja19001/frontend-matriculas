@@ -37,13 +37,15 @@
           <label style="font-size: 0.875rem; font-weight: 600; color: #334155;">Nombre</label>
           <input type="text" formControlName="firstName"
                  style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none;"
-                 [style.borderColor]="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched ? '#EF4444' : '#E2E8F0'">
+                 [style.borderColor]="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched ? '#EF4444' : '#E2E8F0'"
+                 appMaxLength="firstName">
         </div>
         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
           <label style="font-size: 0.875rem; font-weight: 600; color: #334155;">Apellidos</label>
           <input type="text" formControlName="lastName"
                  style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none;"
-                 [style.borderColor]="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched ? '#EF4444' : '#E2E8F0'">
+                 [style.borderColor]="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched ? '#EF4444' : '#E2E8F0'"
+                 appMaxLength="lastName">
         </div>
       </div>
 
@@ -51,14 +53,16 @@
         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
           <label style="font-size: 0.875rem; font-weight: 600; color: #334155;">Código Estudiantil</label>
           <input type="text" formControlName="studentCode"
-                 style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #F1F5F9; background-color: #F8FAFC; color: #64748B; font-size: 0.875rem; cursor: not-allowed; outline: none;">
+                 style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #F1F5F9; background-color: #F8FAFC; color: #64748B; font-size: 0.875rem; cursor: not-allowed; outline: none;"
+                 appMaxLength="studentCode">
           <p style="font-size: 0.75rem; color: #94A3B8;">El código no se puede modificar.</p>
         </div>
         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
           <label style="font-size: 0.875rem; font-weight: 600; color: #334155;">Cédula / ID</label>
           <input type="text" formControlName="nationalId"
                  style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none;"
-                 [style.borderColor]="profileForm.get('nationalId')?.invalid && profileForm.get('nationalId')?.touched ? '#EF4444' : '#E2E8F0'">
+                 [style.borderColor]="profileForm.get('nationalId')?.invalid && profileForm.get('nationalId')?.touched ? '#EF4444' : '#E2E8F0'"
+                 appMaxLength="nationalId">
         </div>
       </div>
 

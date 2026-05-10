@@ -154,16 +154,18 @@
     <div style="display: flex; flex-direction: column; gap: 1.25rem;">
       <div>
         <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Nombre de la Materia</label>
-        <input type="text" [(ngModel)]="form.name" (keypress)="onlyLetters($event)"
+        <input type="text" [(ngModel)]="form.name"
                style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box;"
-               placeholder="Ej: Matemáticas I" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+               placeholder="Ej: Matemáticas I" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"
+               appMaxLength="name"/>
       </div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
         <div>
           <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Código</label>
           <input type="text" [(ngModel)]="form.code"
                  style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box; font-family: 'DM Mono', monospace;"
-                 placeholder="Ej: MAT101" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+                 placeholder="Ej: MAT101" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"
+                 appMaxLength="code"/>
         </div>
         <div>
           <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Créditos</label>

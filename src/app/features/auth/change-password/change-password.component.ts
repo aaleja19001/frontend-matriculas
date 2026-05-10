@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { MaxLengthDirective } from '../../../shared/directives/max-length.directive';
 
 @Component({
   selector: 'app-change-password',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MaxLengthDirective],
   template: `
     <div style="min-height: 100vh; background: #0F172A; display: flex; align-items: center; justify-content: center; padding: 1.5rem; position: relative; overflow: hidden;">
       
@@ -36,7 +37,8 @@ import { AuthService } from '../../../core/auth/auth.service';
               <div style="position: relative;">
                 <input [type]="showCurrent ? 'text' : 'password'" [(ngModel)]="currentPassword" name="currentPassword" required
                        style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; padding: 0.875rem 1.25rem; color: white; font-size: 0.875rem; outline: none; transition: all 0.2s; box-sizing: border-box;"
-                       placeholder="Ingresa tu contraseña temporal">
+                       placeholder="Ingresa tu contraseña temporal"
+                       appMaxLength="password">
                 <button type="button" (click)="showCurrent = !showCurrent" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748B; cursor: pointer; padding: 0.25rem;">
                   <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path *ngIf="!showCurrent" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -50,14 +52,16 @@ import { AuthService } from '../../../core/auth/auth.service';
               <label style="color: #94A3B8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-left: 0.25rem;">Nueva Contraseña</label>
               <input [type]="showNew ? 'text' : 'password'" [(ngModel)]="newPassword" name="newPassword" required
                      style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; padding: 0.875rem 1.25rem; color: white; font-size: 0.875rem; outline: none; transition: all 0.2s; box-sizing: border-box;"
-                     placeholder="Mínimo 8 caracteres">
+                     placeholder="Mínimo 8 caracteres"
+                     appMaxLength="password">
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
               <label style="color: #94A3B8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-left: 0.25rem;">Confirmar Nueva Contraseña</label>
               <input [type]="showNew ? 'text' : 'password'" [(ngModel)]="confirmPassword" name="confirmPassword" required
                      style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; padding: 0.875rem 1.25rem; color: white; font-size: 0.875rem; outline: none; transition: all 0.2s; box-sizing: border-box;"
-                     placeholder="Repite la nueva contraseña">
+                     placeholder="Repite la nueva contraseña"
+                     appMaxLength="password">
             </div>
 
             <div *ngIf="error()" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 0.75rem; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem;">

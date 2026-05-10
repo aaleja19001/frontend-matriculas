@@ -7,11 +7,12 @@ import { AppointmentService } from '../../../core/services/appointment.service';
 import { AvailableSlot, AvailableSlotService } from '../../../core/services/available-slot.service';
 import { Student, StudentService } from '../../../core/services/student.service';
 import { DayOfWeek, DayOfWeekNames, SubjectOffering, SubjectOfferingService } from '../../../core/services/subject-offering.service';
+import { MaxLengthDirective } from '../../../shared/directives/max-length.directive';
 
 @Component({
   selector: 'app-request-appointment',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, MaxLengthDirective],
   templateUrl: './request-appointment.component.html'
 })
 export class RequestAppointmentComponent implements OnInit {

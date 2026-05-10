@@ -5,11 +5,12 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { MaxLengthDirective } from '../../../shared/directives/max-length.directive';
 
 @Component({
   selector: 'app-advisor-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, MaxLengthDirective],
   template: `
     <div class="max-w-2xl mx-auto">
       <!-- Header -->
@@ -50,13 +51,15 @@ import { environment } from '../../../../environments/environment';
               <label style="font-size: 0.875rem; font-weight: 600; color: #334155;">Nombre</label>
               <input type="text" formControlName="firstName"
                      style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none;"
-                     [style.borderColor]="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched ? '#EF4444' : '#E2E8F0'">
+                     [style.borderColor]="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched ? '#EF4444' : '#E2E8F0'"
+                     appMaxLength="firstName">
             </div>
             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
               <label style="font-size: 0.875rem; font-weight: 600; color: #334155;">Apellidos</label>
               <input type="text" formControlName="lastName"
                      style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none;"
-                     [style.borderColor]="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched ? '#EF4444' : '#E2E8F0'">
+                     [style.borderColor]="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched ? '#EF4444' : '#E2E8F0'"
+                     appMaxLength="lastName">
             </div>
           </div>
 
@@ -64,7 +67,8 @@ import { environment } from '../../../../environments/environment';
             <label style="font-size: 0.875rem; font-weight: 600; color: #334155;">Correo Electrónico</label>
             <input type="email" formControlName="email"
                    style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none;"
-                   [style.borderColor]="profileForm.get('email')?.invalid && profileForm.get('email')?.touched ? '#EF4444' : '#E2E8F0'">
+                   [style.borderColor]="profileForm.get('email')?.invalid && profileForm.get('email')?.touched ? '#EF4444' : '#E2E8F0'"
+                   appMaxLength="email">
           </div>
 
           <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 1rem;">
