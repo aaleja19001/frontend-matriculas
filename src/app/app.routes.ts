@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { adminGuard, authGuard } from './core/auth/auth.guard';
+import { adminGuard, advisorGuard, authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -56,6 +56,31 @@ export const routes: Routes = [
         path: 'professors',
         loadComponent: () => import('./features/admin/professors/professors.component').then(m => m.ProfessorsComponent)
       }
+      ,
+      {
+        path: 'users',
+        loadComponent: () => import('./features/admin/users/users.component').then(m => m.UsersComponent)
+      }
+    ]
+  },
+  {
+    path: 'advisor',
+    canActivate: [advisorGuard],
+    loadComponent: () => import('./shared/advisor-layout/advisor-layout.component').then(m => m.AdvisorLayoutComponent),
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/advisor/dashboard/advisor-dashboard.component').then(m => m.AdvisorDashboardComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/advisor/profile/advisor-profile.component').then(m => m.AdvisorProfileComponent)
+      },
+      {
+        path: 'profile/change-password',
+        loadComponent: () => import('./features/advisor/profile/change-password/advisor-change-password.component').then(m => m.AdvisorChangePasswordComponent)
+      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
   {

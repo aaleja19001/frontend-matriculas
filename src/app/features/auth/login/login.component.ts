@@ -28,6 +28,8 @@ export class LoginComponent implements AfterViewInit {
           this.router.navigate(['/change-password']);
         } else if (this.authService.isAdmin()) {
           this.router.navigate(['/admin/dashboard']);
+        } else if (this.authService.isAdvisor()) {
+          this.router.navigate(['/advisor/dashboard']);
         } else {
           this.router.navigate(['/student/dashboard']);
         }

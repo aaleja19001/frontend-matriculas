@@ -76,6 +76,11 @@ export class AuthService {
     return user?.auth?.includes('ROLE_ADMIN') ?? false;
   }
 
+  isAdvisor(): boolean {
+    const user = this.getSavedUser();
+    return user?.auth?.includes('ROLE_ASESOR') ?? false;
+  }
+
   private getSavedUser(): any {
     const user = localStorage.getItem(this.USER_KEY);
     return user ? JSON.parse(user) : null;

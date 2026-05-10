@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -163,6 +163,15 @@ export class RequestAppointmentComponent implements OnInit {
 
   formatTimeRange(startTime: string, endTime: string) {
     return `${this.formatTime(startTime)} - ${this.formatTime(endTime)}`;
+  }
+
+  getSelectedSlot(): AvailableSlot | undefined {
+    return this.slots().find(s => s.id === this.form.slotId);
+  }
+
+  advisorList(slot: AvailableSlot) {
+    if (!slot || !slot.advisors || slot.advisors.length === 0) return '';
+    return slot.advisors.map(a => `${a.firstName || ''} ${a.lastName || ''}`.trim()).join(', ');
   }
 
   submit() {
