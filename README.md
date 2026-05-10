@@ -1,59 +1,67 @@
-# FrontendMatriculas
+# Portal de Matrículas (Frontend)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.2.
+Aplicación web para la gestión de citas de matrícula universitaria, desarrollada con Angular.
 
-## Development server
+## 🚀 Tecnologías
 
-To start a local development server, run:
+*   **Angular 21.2.x** (Usando Componentes Standalone).
+*   **Tailwind CSS** para estilos modernos y responsivos.
+*   **TypeScript** para tipado estático.
+*   **Angular Signals** para la gestión reactiva del estado.
+*   **RxJS** para el manejo de flujos asíncronos y peticiones HTTP.
+*   **jsPDF** y **jspdf-autotable** para la generación de reportes en PDF.
 
-```bash
-ng serve
+## 🛠️ Requisitos Previos
+
+*   **Node.js** (Versión 20 o superior recomendada).
+*   **npm** (Viene con Node.js).
+
+## ⚙️ Configuración
+
+La configuración del API backend se encuentra en `src/environments/`.
+
+### Desarrollo
+En `src/environments/environment.ts`:
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8081/api'
+};
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Estructura del Proyecto
 
-## Code scaffolding
+*   `src/app/core`: Servicios globales, guardas de seguridad e interceptores.
+*   `src/app/features`: Módulos de funcionalidad divididos por rol:
+    *   `admin`: Gestión de slots, citas, estudiantes, profesores y programas.
+    *   `student`: Dashboard del estudiante, solicitud de citas y perfil.
+    *   `auth`: Login y recuperación de contraseña.
+*   `src/app/shared`: Componentes reutilizables, layouts (admin/student) y componentes UI.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Ejecución
 
-```bash
-ng generate component component-name
-```
+1.  Instalar dependencias:
+    ```bash
+    npm install
+    ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+2.  Iniciar servidor de desarrollo:
+    ```bash
+    npm start
+    ```
 
-```bash
-ng generate --help
-```
+La aplicación estará disponible en `http://localhost:4200`.
 
-## Building
+## Construcción
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+Para generar el build de producción:
 
 ```bash
-ng test
+npm run build
 ```
 
-## Running end-to-end tests
+Los archivos se generarán en la carpeta `dist/frontend-matriculas`.
 
-For end-to-end (e2e) testing, run:
+## Autenticación
 
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+El sistema utiliza **JWT**. El token se almacena en el `localStorage` del navegador y se adjunta automáticamente a todas las peticiones salientes mediante un interceptor (`auth.interceptor.ts`).
