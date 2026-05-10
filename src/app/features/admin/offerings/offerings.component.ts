@@ -1,10 +1,10 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { SubjectOfferingService, SubjectOffering, DayOfWeek, DayOfWeekNames } from '../../../core/services/subject-offering.service';
-import { SubjectService, Subject } from '../../../core/services/subject.service';
-import { ProfessorService, Professor } from '../../../core/services/professor.service';
 import { forkJoin } from 'rxjs';
+import { Professor, ProfessorService } from '../../../core/services/professor.service';
+import { DayOfWeek, DayOfWeekNames, SubjectOffering, SubjectOfferingService } from '../../../core/services/subject-offering.service';
+import { Subject, SubjectService } from '../../../core/services/subject.service';
 
 @Component({
   selector: 'app-offerings',
@@ -14,13 +14,13 @@ import { forkJoin } from 'rxjs';
 })
 export class OfferingsComponent implements OnInit {
 
-  offerings = signal<SubjectOffering[]>([]);
-  subjects = signal<Subject[]>([]);
-  professors = signal<Professor[]>([]);
-  loading = signal(false);
-  showModal = signal(false);
-  saving = signal(false);
-  editingId = signal<number | null>(null);
+  offerings: SubjectOffering[] = [];
+  subjects: Subject[] = [];
+  professors: Professor[] = [];
+  loading = false;
+  showModal = false;
+  saving = false;
+  editingId: number | null = null;
   
   DayOfWeekNames = DayOfWeekNames;
   daysOfWeek: DayOfWeek[] = [DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY];
@@ -38,7 +38,8 @@ export class OfferingsComponent implements OnInit {
   constructor(
     private offeringService: SubjectOfferingService,
     private subjectService: SubjectService,
-    private professorService: ProfessorService
+    private professorService: ProfessorService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -46,24 +47,25 @@ export class OfferingsComponent implements OnInit {
   }
 
   loadData() {
-    this.loading.set(true);
+    this.loading = true;
     forkJoin({
       offerings: this.offeringService.getAll(),
       subjects: this.subjectService.getAll(),
       professors: this.professorService.getAll()
     }).subscribe({
       next: ({ offerings, subjects, professors }) => {
-        this.offerings.set(offerings);
-        this.subjects.set(subjects);
-        this.professors.set(professors);
-        this.loading.set(false);
+        this.offerings = offerings;
+        this.subjects = subjects;
+        this.professors = professors;
+        this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => { this.loading.set(false); }
+      error: () => { this.loading = false; this.cdr.detectChanges(); }
     });
   }
 
   openCreate() {
-    this.editingId.set(null);
+    this.editingId = null;
     this.form = { 
       subjectId: null, 
       professorId: null, 
@@ -73,11 +75,11 @@ export class OfferingsComponent implements OnInit {
       semester: '2024-1', 
       capacity: 30 
     };
-    this.showModal.set(true);
+    this.showModal = true;
   }
 
   openEdit(offering: SubjectOffering) {
-    this.editingId.set(offering.id!);
+    this.editingId = offering.id!;
     this.form = {
       subjectId: offering.subject.id!,
       professorId: offering.professor.id!,
@@ -87,18 +89,18 @@ export class OfferingsComponent implements OnInit {
       semester: offering.semester,
       capacity: offering.capacity
     };
-    this.showModal.set(true);
+    this.showModal = true;
   }
 
   closeModal() {
-    this.showModal.set(false);
-    this.editingId.set(null);
+    this.showModal = false;
+    this.editingId = null;
   }
 
   save() {
     if (!this.form.subjectId || !this.form.professorId || !this.form.startTime || !this.form.endTime) return;
     
-    this.saving.set(true);
+    this.saving = true;
     const payload: any = {
       dayOfWeek: this.form.dayOfWeek,
       startTime: `${this.form.startTime}:00Z`,
@@ -109,16 +111,16 @@ export class OfferingsComponent implements OnInit {
       professor: { id: this.form.professorId }
     };
 
-    if (this.editingId()) {
-      payload.id = this.editingId()!;
-      this.offeringService.update(this.editingId()!, payload).subscribe({
-        next: () => { this.loadData(); this.closeModal(); this.saving.set(false); },
-        error: () => this.saving.set(false)
+    if (this.editingId) {
+      payload.id = this.editingId;
+      this.offeringService.update(this.editingId, payload).subscribe({
+        next: () => { this.loadData(); this.closeModal(); this.saving = false; },
+        error: () => this.saving = false
       });
     } else {
       this.offeringService.create(payload).subscribe({
-        next: () => { this.loadData(); this.closeModal(); this.saving.set(false); },
-        error: () => this.saving.set(false)
+        next: () => { this.loadData(); this.closeModal(); this.saving = false; },
+        error: () => this.saving = false
       });
     }
   }
@@ -135,13 +137,6 @@ export class OfferingsComponent implements OnInit {
     if (!date) return '—';
     return new Date(date).toLocaleString('es-CO', {
       dateStyle: 'medium', timeStyle: 'short'
-    });
-  }
-
-  formatTime(date: string) {
-    if (!date) return '—';
-    return new Date(date).toLocaleString('es-CO', {
-      timeStyle: 'short'
     });
   }
 }

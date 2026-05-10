@@ -3,21 +3,19 @@
   <!-- Header -->
   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
     <div>
-      <h1 style="font-size: 1.5rem; font-weight: 700; color: #0F172A;">Oferta Académica</h1>
-      <p style="font-size: 0.875rem; margin-top: 0.25rem; color: #64748B;">{{ offerings().length }} ofertas registradas</p>
+      <h1 style="font-size: 1.5rem; font-weight: 700; color: #0F172A;">Ofertas de Materias</h1>
+      <p style="font-size: 0.875rem; margin-top: 0.25rem; color: #64748B;">Programa las secciones, profesores y horarios</p>
     </div>
-    <div style="display: flex; gap: 1rem; align-items: center;">
-      <button (click)="openCreate()"
-              style="display: flex; align-items: center; gap: 0.5rem; background-color: #2563EB; color: white; font-size: 0.875rem; font-weight: 600; padding: 0.625rem 1rem; border-radius: 0.75rem; border: none; cursor: pointer;"
-              onmouseover="this.style.backgroundColor='#1D4ED8'"
-              onmouseout="this.style.backgroundColor='#2563EB'">
-        + Nueva Oferta
-      </button>
-    </div>
+    <button (click)="openCreate()"
+            style="display: flex; align-items: center; gap: 0.5rem; background-color: #2563EB; color: white; font-size: 0.875rem; font-weight: 600; padding: 0.625rem 1rem; border-radius: 0.75rem; border: none; cursor: pointer;"
+            onmouseover="this.style.backgroundColor='#1D4ED8'"
+            onmouseout="this.style.backgroundColor='#2563EB'">
+      + Nueva Oferta
+    </button>
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading()" style="display: flex; justify-content: center; padding: 4rem 0;">
+  <div *ngIf="loading" style="display: flex; justify-content: center; padding: 4rem 0;">
     <svg style="animation: spin 1s linear infinite; width: 1.5rem; height: 1.5rem; color: #2563EB;" fill="none" viewBox="0 0 24 24">
       <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
       <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
@@ -25,47 +23,43 @@
   </div>
 
   <!-- Tabla -->
-  <div *ngIf="!loading()" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; overflow: hidden;">
+  <div *ngIf="!loading" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; overflow: hidden;">
     <table style="width: 100%; border-collapse: collapse;">
       <thead style="background-color: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
         <tr>
           <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Materia</th>
           <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Profesor</th>
-          <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Horario</th>
+          <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Día y Horario</th>
+          <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Semestre</th>
           <th style="text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B;">Cupos</th>
           <th style="padding: 1rem 1.5rem;"></th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let o of offerings()"
+        <tr *ngFor="let o of offerings"
             style="border-bottom: 1px solid #F1F5F9;"
             onmouseover="this.style.backgroundColor='#F8FAFC'"
             onmouseout="this.style.backgroundColor='transparent'">
           <td style="padding: 1rem 1.5rem;">
-            <p style="font-size: 0.875rem; font-weight: 500; color: #0F172A;">{{ o.subject.name }}</p>
-            <p style="font-size: 0.75rem; color: #64748B;">{{ o.semester }}</p>
+            <p style="font-size: 0.875rem; font-weight: 600; color: #0F172A;">{{ o.subject.name }}</p>
+            <p style="font-size: 0.75rem; color: #64748B;">{{ o.subject.code }}</p>
           </td>
-          <td style="padding: 1rem 1.5rem;">
-            <p style="font-size: 0.875rem; color: #0F172A;">{{ o.professor.firstName }} {{ o.professor.lastName }}</p>
+          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #0F172A;">
+            {{ o.professor.firstName }} {{ o.professor.lastName }}
           </td>
-          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #64748B;">
-            <span style="font-weight: 600; color: #1E293B;">{{ DayOfWeekNames[o.dayOfWeek] }}</span>
-            <br>
-            {{ formatTime(o.startTime) }} - {{ formatTime(o.endTime) }}
+          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #0F172A;">
+            <p style="font-weight: 600;">{{ DayOfWeekNames[o.dayOfWeek] }}</p>
+            <p>{{ formatDate(o.startTime) }}</p>
+            <p style="font-size: 0.75rem; color: #64748B;">{{ formatDate(o.endTime) }}</p>
           </td>
-          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #64748B;">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span [style.color]="(o.enrolledCount ?? 0) >= o.capacity ? '#DC2626' : '#059669'" style="font-weight: 600;">
-                {{ o.enrolledCount ?? 0 }}
-              </span>
-              <span>/</span>
-              <span>{{ o.capacity }}</span>
-            </div>
+          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #0F172A;">{{ o.semester }}</td>
+          <td style="padding: 1rem 1.5rem; font-size: 0.875rem; color: #0F172A;">
+            <span style="font-weight: 600;">{{ o.enrolledCount ?? 0 }}</span> / {{ o.capacity }}
           </td>
           <td style="padding: 1rem 1.5rem; text-align: right;">
             <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
               <button (click)="openEdit(o)"
-                      style="background: #F1F5F9; border: none; cursor: pointer; color: #64748B; padding: 0.375rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 500;"
+                      style="background: #F1F5F9; border: none; cursor: pointer; color: #64748B; padding: 0.375rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem;"
                       onmouseover="this.style.backgroundColor='#E2E8F0'"
                       onmouseout="this.style.backgroundColor='#F1F5F9'">
                 Editar
@@ -82,18 +76,23 @@
             </div>
           </td>
         </tr>
+        <tr *ngIf="offerings.length === 0">
+          <td colspan="6" style="padding: 4rem 1.5rem; text-align: center; font-size: 0.875rem; color: #94A3B8;">
+            No hay ofertas registradas.
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- Modal crear/editar -->
-<div *ngIf="showModal()" style="position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(15,23,42,0.4);">
+<!-- Modal -->
+<div *ngIf="showModal" style="position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(15,23,42,0.4);">
   <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; width: 100%; max-width: 32rem; padding: 1.5rem; max-height: 90vh; overflow-y: auto;">
 
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
       <h2 style="font-size: 1.125rem; font-weight: 700; color: #0F172A;">
-        {{ editingId() ? 'Editar oferta' : 'Nueva oferta' }}
+        {{ editingId ? 'Editar oferta' : 'Nueva oferta' }}
       </h2>
       <button (click)="closeModal()" style="background: none; border: none; cursor: pointer; color: #64748B;">
         <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,17 +106,39 @@
         <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Materia</label>
         <select [(ngModel)]="form.subjectId"
                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;">
-          <option [ngValue]="null">Seleccione una materia...</option>
-          <option *ngFor="let s of subjects()" [ngValue]="s.id">{{ s.name }} ({{ s.code }})</option>
+          <option [ngValue]="null">Seleccionar materia...</option>
+          <option *ngFor="let s of subjects" [ngValue]="s.id">{{ s.name }} ({{ s.code }})</option>
         </select>
       </div>
+
       <div>
         <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Profesor</label>
         <select [(ngModel)]="form.professorId"
                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;">
-          <option [ngValue]="null">Seleccione un profesor...</option>
-          <option *ngFor="let p of professors()" [ngValue]="p.id">{{ p.firstName }} {{ p.lastName }}</option>
+          <option [ngValue]="null">Seleccionar profesor...</option>
+          <option *ngFor="let p of professors" [ngValue]="p.id">{{ p.firstName }} {{ p.lastName }}</option>
         </select>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Día de la semana</label>
+        <select [(ngModel)]="form.dayOfWeek"
+                style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;">
+          <option *ngFor="let day of daysOfWeek" [ngValue]="day">{{ DayOfWeekNames[day] }}</option>
+        </select>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Inicio</label>
+          <input type="datetime-local" [(ngModel)]="form.startTime"
+                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"/>
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Fin</label>
+          <input type="datetime-local" [(ngModel)]="form.endTime"
+                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"/>
+        </div>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
@@ -128,51 +149,24 @@
                  placeholder="Ej: 2024-1"/>
         </div>
         <div>
-          <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Cupos</label>
-          <input type="number" [(ngModel)]="form.capacity"
-                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"
-                 min="1"/>
-        </div>
-      </div>
-
-      <div>
-        <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Día de la semana</label>
-        <select [(ngModel)]="form.dayOfWeek"
-                style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;">
-          <option *ngFor="let d of daysOfWeek" [value]="d">{{ DayOfWeekNames[d] }}</option>
-        </select>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-        <div>
-          <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Fecha y Hora Inicio</label>
-          <input type="datetime-local" [(ngModel)]="form.startTime"
-                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"/>
-        </div>
-        <div>
-          <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Fecha y Hora Fin</label>
-          <input type="datetime-local" [(ngModel)]="form.endTime"
+          <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.375rem;">Capacidad</label>
+          <input type="number" [(ngModel)]="form.capacity" min="1"
                  style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; box-sizing: border-box;"/>
         </div>
       </div>
     </div>
 
-    <!-- Botones -->
     <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
       <button (click)="closeModal()"
               style="flex: 1; padding: 0.625rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 500; background: #F1F5F9; color: #64748B; border: none; cursor: pointer;">
         Cancelar
       </button>
-      <button (click)="save()" [disabled]="saving() || !form.subjectId || !form.professorId || !form.startTime || !form.endTime"
+      <button (click)="save()" [disabled]="saving || !form.subjectId || !form.professorId || !form.startTime || !form.endTime"
               style="flex: 1; padding: 0.625rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 600; background-color: #2563EB; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"
-              [style.opacity]="(saving() || !form.subjectId || !form.professorId || !form.startTime || !form.endTime) ? 0.5 : 1"
+              [style.opacity]="(saving || !form.subjectId || !form.professorId || !form.startTime || !form.endTime) ? 0.5 : 1"
               onmouseover="this.style.backgroundColor='#1D4ED8'"
               onmouseout="this.style.backgroundColor='#2563EB'">
-        <svg *ngIf="saving()" style="animation: spin 1s linear infinite; width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24">
-          <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/>
-          <path style="opacity: 0.75;" fill="white" d="M4 12a8 8 0 018-8v8z"/>
-        </svg>
-        {{ saving() ? 'Guardando...' : (editingId() ? 'Actualizar' : 'Crear Oferta') }}
+        {{ saving ? 'Guardando...' : 'Guardar' }}
       </button>
     </div>
 
