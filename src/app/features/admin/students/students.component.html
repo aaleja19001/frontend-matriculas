@@ -188,19 +188,11 @@
                placeholder="juan.perez" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
       </div>
 
-      <div *ngIf="!editingId()" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
-        <div>
-          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Contraseña</label>
-          <input type="password" [(ngModel)]="form.password"
-                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box;"
-                 placeholder="********" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
-        </div>
-        <div>
-          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Email</label>
-          <input type="email" [(ngModel)]="form.email"
-                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box;"
-                 placeholder="juan@universidad.edu" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
-        </div>
+      <div *ngIf="!editingId()">
+        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Email</label>
+        <input type="email" [(ngModel)]="form.email"
+               style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box;"
+               placeholder="juan@universidad.edu" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
       </div>
 
       <div>
