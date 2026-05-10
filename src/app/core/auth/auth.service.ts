@@ -16,16 +16,33 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) {}
 
   login(username: string, password: string) {
-    return this.http.post<{ token: string }>(`${environment.apiUrl}/authenticate`, {
+    return this.http.post<{ token: string, mustChangePassword: boolean }>(`${environment.apiUrl}/authenticate`, {
       username,
       password
     }).pipe(
       tap(response => {
         localStorage.setItem(this.TOKEN_KEY, response.token);
         const payload = this.decodeToken(response.token);
-        localStorage.setItem(this.USER_KEY, JSON.stringify(payload));
+        const userData = { ...payload, mustChangePassword: response.mustChangePassword };
+        localStorage.setItem(this.USER_KEY, JSON.stringify(userData));
         this.isAuthenticated.set(true);
-        this.currentUser.set(payload);
+        this.currentUser.set(userData);
+      })
+    );
+  }
+
+  changePassword(currentPassword: string, newPassword: string) {
+    return this.http.post(`${environment.apiUrl}/account/change-password`, {
+      currentPassword,
+      newPassword
+    }).pipe(
+      tap(() => {
+        const user = this.currentUser();
+        if (user) {
+          user.mustChangePassword = false;
+          localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+          this.currentUser.set({ ...user });
+        }
       })
     );
   }

@@ -20,8 +20,18 @@ export class SubjectsComponent implements OnInit {
   saving = signal(false);
   editingId = signal<number | null>(null);
 
+  stats = computed(() => {
+    const all = this.subjects();
+    return {
+      total: all.length,
+      highCredits: all.filter(s => s.credits >= 4).length,
+      averageCredits: all.length > 0 ? (all.reduce((acc, s) => acc + s.credits, 0) / all.length).toFixed(1) : 0
+    };
+  });
+
   filtered = computed(() => {
-    const value = this.search().toLowerCase();
+    const value = this.search().toLowerCase().trim();
+    if (!value) return this.subjects();
     return this.subjects().filter(s =>
       s.name?.toLowerCase().includes(value) ||
       s.code?.toLowerCase().includes(value)
@@ -79,7 +89,7 @@ export class SubjectsComponent implements OnInit {
       name: subject.name,
       code: subject.code,
       credits: subject.credits,
-      selectedProgramIds: subject.programs?.map(p => p.id) || []
+      selectedProgramIds: subject.programs?.map(p => p.id!) || []
     };
     this.showModal.set(true);
   }
@@ -127,5 +137,12 @@ export class SubjectsComponent implements OnInit {
       next: () => { this.loadSubjects(); },
       error: () => { alert('No se puede eliminar la materia. Puede que esté asociada a citas o programas.'); }
     });
+  }
+
+  onlyLetters(event: KeyboardEvent) {
+    const pattern = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
+    if (!pattern.test(event.key)) {
+      event.preventDefault();
+    }
   }
 }
