@@ -22,8 +22,18 @@ export class StudentsComponent implements OnInit {
   deletingId = signal<number | null>(null);
   editingId = signal<number | null>(null);
 
+  stats = computed(() => {
+    const all = this.students();
+    return {
+      total: all.length,
+      active: all.filter(s => s.active).length,
+      programs: new Set(all.map(s => s.program?.id).filter(id => id)).size
+    };
+  });
+
   filtered = computed(() => {
-    const value = this.search().toLowerCase();
+    const value = this.search().toLowerCase().trim();
+    if (!value) return this.students();
     return this.students().filter(s =>
       s.firstName?.toLowerCase().includes(value) ||
       s.lastName?.toLowerCase().includes(value) ||
@@ -38,7 +48,6 @@ export class StudentsComponent implements OnInit {
     studentCode: '',
     nationalId: '',
     login: '',
-    password: '',
     email: '',
     programId: null as number | null
   };
@@ -82,7 +91,7 @@ export class StudentsComponent implements OnInit {
 
   openCreate() {
     this.editingId.set(null);
-    this.form = { firstName: '', lastName: '', studentCode: '', nationalId: '', login: '', password: '', email: '', programId: null };
+    this.form = { firstName: '', lastName: '', studentCode: '', nationalId: '', login: '', email: '', programId: null };
     this.showModal.set(true);
   }
 
@@ -94,7 +103,6 @@ export class StudentsComponent implements OnInit {
       studentCode: student.studentCode ?? '',
       nationalId: student.nationalId ?? '',
       login: student.user?.login ?? '',
-      password: '',
       email: '',
       programId: student.program?.id ?? null
     };
@@ -133,7 +141,6 @@ export class StudentsComponent implements OnInit {
         firstName: this.form.firstName,
         lastName: this.form.lastName,
         email: this.form.email,
-        password: this.form.password,
         activated: true,
         langKey: 'es',
         authorities: ['ROLE_USER']

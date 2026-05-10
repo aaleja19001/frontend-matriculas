@@ -1,0 +1,171 @@
+import { Component, signal, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../../../core/auth/auth.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
+
+@Component({
+  selector: 'app-advisor-profile',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
+  template: `
+    <div class="max-w-2xl mx-auto">
+      <!-- Header -->
+      <div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
+        <button routerLink="/advisor/dashboard" 
+                style="display: flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border-radius: 9999px; border: 1px solid #E2E8F0; background: white; color: #64748B; cursor: pointer;">
+          <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <div>
+          <h1 style="font-size: 1.5rem; font-weight: 700; color: #0F172A;">Mi Perfil</h1>
+          <p style="font-size: 0.875rem; color: #64748B; margin-top: 0.25rem;">Actualiza tu información personal de asesor</p>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; overflow: hidden; padding: 2rem;">
+        
+        <div *ngIf="loading()" style="display: flex; justify-content: center; padding: 4rem 0;">
+          <svg style="animation: spin 1s linear infinite; width: 2rem; height: 2rem; color: #10B981;" fill="none" viewBox="0 0 24 24">
+            <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+          </svg>
+        </div>
+
+        <form *ngIf="!loading()" [formGroup]="profileForm" (ngSubmit)="onSubmit()" style="display: flex; flex-direction: column; gap: 1.5rem;">
+          
+          <!-- Alert Message -->
+          <div *ngIf="message().text" 
+               [style]="message().type === 'success' ? 'background-color: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0;' : 'background-color: #FEE2E2; color: #991B1B; border: 1px solid #FECACA;'"
+               style="padding: 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500;">
+            {{ message().text }}
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <label style="font-size: 0.875rem; font-weight: 600; color: #334155;">Nombre</label>
+              <input type="text" formControlName="firstName"
+                     style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none;"
+                     [style.borderColor]="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched ? '#EF4444' : '#E2E8F0'">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <label style="font-size: 0.875rem; font-weight: 600; color: #334155;">Apellidos</label>
+              <input type="text" formControlName="lastName"
+                     style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none;"
+                     [style.borderColor]="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched ? '#EF4444' : '#E2E8F0'">
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label style="font-size: 0.875rem; font-weight: 600; color: #334155;">Correo Electrónico</label>
+            <input type="email" formControlName="email"
+                   style="padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; font-size: 0.875rem; outline: none;"
+                   [style.borderColor]="profileForm.get('email')?.invalid && profileForm.get('email')?.touched ? '#EF4444' : '#E2E8F0'">
+          </div>
+
+          <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 1rem;">
+            <button type="button" routerLink="/advisor/dashboard"
+                    style="padding: 0.625rem 1.25rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; background: white; color: #64748B; font-size: 0.875rem; font-weight: 600; cursor: pointer;">
+              Cancelar
+            </button>
+            <button type="submit" [disabled]="profileForm.invalid || saving()"
+                    style="padding: 0.625rem 1.25rem; border-radius: 0.5rem; border: none; background: #10B981; color: white; font-size: 0.875rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+              <svg *ngIf="saving()" style="animation: spin 1s linear infinite; width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24">
+                <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+              </svg>
+              {{ saving() ? 'Guardando...' : 'Guardar Cambios' }}
+            </button>
+          </div>
+
+          <!-- Security Section -->
+          <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #E2E8F0;">
+            <h3 style="font-size: 1rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">Seguridad</h3>
+            <p style="font-size: 0.875rem; color: #64748B; margin-bottom: 1rem;">Protege tu cuenta actualizando tu contraseña periódicamente.</p>
+            <a routerLink="/advisor/profile/change-password" 
+               style="display: inline-flex; align-items: center; gap: 0.5rem; color: #10B981; font-size: 0.875rem; font-weight: 600; text-decoration: none; cursor: pointer;">
+              <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              Cambiar contraseña
+            </a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <style>
+      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+  `
+})
+export class AdvisorProfileComponent implements OnInit {
+  profileForm: FormGroup;
+  loading = signal(false);
+  saving = signal(false);
+  message = signal({ text: '', type: '' });
+  user: any = null;
+
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private http: HttpClient,
+    private router: Router
+  ) {
+    this.profileForm = this.fb.group({
+      firstName: ['', [Validators.required]],
+      lastName: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+    });
+  }
+
+  ngOnInit() {
+    this.loadProfile();
+  }
+
+  loadProfile() {
+    this.loading.set(true);
+    this.http.get(`${environment.apiUrl}/account`).subscribe({
+      next: (user: any) => {
+        this.user = user;
+        this.profileForm.patchValue({
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email
+        });
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.message.set({ text: 'Error al cargar el perfil', type: 'error' });
+      }
+    });
+  }
+
+  onSubmit() {
+    if (this.profileForm.invalid || !this.user) return;
+
+    this.saving.set(true);
+    const updatedUser = { ...this.user, ...this.profileForm.value };
+    
+    this.http.post(`${environment.apiUrl}/account`, updatedUser).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.message.set({ text: 'Perfil actualizado con éxito', type: 'success' });
+        setTimeout(() => this.message.set({ text: '', type: '' }), 3000);
+      },
+      error: (err: any) => {
+        this.saving.set(false);
+        this.message.set({ 
+          text: 'Error al actualizar: ' + (err.error?.detail || err.error?.message || 'Error desconocido'), 
+          type: 'error' 
+        });
+      }
+    });
+  }
+}
