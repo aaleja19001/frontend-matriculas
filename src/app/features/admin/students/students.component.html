@@ -153,46 +153,94 @@
     <div style="display: flex; flex-direction: column; gap: 1.25rem;">
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
         <div>
-          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Nombre</label>
-          <input type="text" [(ngModel)]="form.firstName" (keypress)="onlyLetters($event)"
+          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Nombre <span style="color: #EF4444;">*</span></label>
+          <input type="text" 
+                 [(ngModel)]="form.firstName" 
+                 appMaxLength="firstName"
+                 (characterLimitExceeded)="onCharacterLimitExceeded($event)"
                  style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box;"
-                 placeholder="Ej: Juan" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+                 [style.borderColor]="validationErrors()['firstName'] ? '#EF4444' : '#E2E8F0'"
+                 [style.backgroundColor]="validationErrors()['firstName'] ? '#FEE2E2' : '#F8FAFC'"
+                 placeholder="Ej: Juan (máx. 20 caracteres)" 
+                 onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+          <p *ngIf="validationErrors()['firstName']" style="color: #EF4444; font-size: 0.75rem; margin-top: 0.25rem; font-weight: 600;">{{ validationErrors()['firstName'] }}</p>
+          <p style="color: #94A3B8; font-size: 0.7rem; margin-top: 0.25rem;">{{ form.firstName.length }}/{{ getCharLimit('firstName') }} caracteres</p>
         </div>
         <div>
-          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Apellido</label>
-          <input type="text" [(ngModel)]="form.lastName" (keypress)="onlyLetters($event)"
+          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Apellido <span style="color: #EF4444;">*</span></label>
+          <input type="text" 
+                 [(ngModel)]="form.lastName" 
+                 appMaxLength="lastName"
+                 (characterLimitExceeded)="onCharacterLimitExceeded($event)"
                  style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box;"
-                 placeholder="Ej: Pérez" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+                 [style.borderColor]="validationErrors()['lastName'] ? '#EF4444' : '#E2E8F0'"
+                 [style.backgroundColor]="validationErrors()['lastName'] ? '#FEE2E2' : '#F8FAFC'"
+                 placeholder="Ej: Pérez (máx. 20 caracteres)" 
+                 onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+          <p *ngIf="validationErrors()['lastName']" style="color: #EF4444; font-size: 0.75rem; margin-top: 0.25rem; font-weight: 600;">{{ validationErrors()['lastName'] }}</p>
+          <p style="color: #94A3B8; font-size: 0.7rem; margin-top: 0.25rem;">{{ form.lastName.length }}/{{ getCharLimit('lastName') }} caracteres</p>
         </div>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
         <div>
-          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Código Estudiantil</label>
-          <input type="text" [(ngModel)]="form.studentCode" (keypress)="onlyNumbers($event)"
+          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Código Estudiantil <span style="color: #EF4444;">*</span></label>
+          <input type="text" 
+                 [(ngModel)]="form.studentCode" 
+                 appMaxLength="studentCode"
+                 (characterLimitExceeded)="onCharacterLimitExceeded($event)"
                  style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box; font-family: 'DM Mono', monospace;"
-                 placeholder="2023001" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+                 [style.borderColor]="validationErrors()['studentCode'] ? '#EF4444' : '#E2E8F0'"
+                 [style.backgroundColor]="validationErrors()['studentCode'] ? '#FEE2E2' : '#F8FAFC'"
+                 placeholder="2023001 (máx. 20 caracteres)" 
+                 onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+          <p *ngIf="validationErrors()['studentCode']" style="color: #EF4444; font-size: 0.75rem; margin-top: 0.25rem; font-weight: 600;">{{ validationErrors()['studentCode'] }}</p>
+          <p style="color: #94A3B8; font-size: 0.7rem; margin-top: 0.25rem;">{{ form.studentCode.length }}/{{ getCharLimit('studentCode') }} caracteres</p>
         </div>
         <div>
-          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Identificación</label>
-          <input type="text" [(ngModel)]="form.nationalId" (keypress)="onlyNumbers($event)"
+          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Identificación <span style="color: #EF4444;">*</span></label>
+          <input type="text" 
+                 [(ngModel)]="form.nationalId" 
+                 appMaxLength="nationalId"
+                 (characterLimitExceeded)="onCharacterLimitExceeded($event)"
                  style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box;"
-                 placeholder="1000123456" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+                 [style.borderColor]="validationErrors()['nationalId'] ? '#EF4444' : '#E2E8F0'"
+                 [style.backgroundColor]="validationErrors()['nationalId'] ? '#FEE2E2' : '#F8FAFC'"
+                 placeholder="1000123456 (máx. 20 caracteres)" 
+                 onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+          <p *ngIf="validationErrors()['nationalId']" style="color: #EF4444; font-size: 0.75rem; margin-top: 0.25rem; font-weight: 600;">{{ validationErrors()['nationalId'] }}</p>
+          <p style="color: #94A3B8; font-size: 0.7rem; margin-top: 0.25rem;">{{ form.nationalId.length }}/{{ getCharLimit('nationalId') }} caracteres</p>
         </div>
       </div>
 
       <div *ngIf="!editingId()">
-        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Usuario (Login)</label>
-        <input type="text" [(ngModel)]="form.login"
+        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Usuario (Login) <span style="color: #EF4444;">*</span></label>
+        <input type="text" 
+               [(ngModel)]="form.login"
+               appMaxLength="login"
+               (characterLimitExceeded)="onCharacterLimitExceeded($event)"
                style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box;"
-               placeholder="juan.perez" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+               [style.borderColor]="validationErrors()['login'] ? '#EF4444' : '#E2E8F0'"
+               [style.backgroundColor]="validationErrors()['login'] ? '#FEE2E2' : '#F8FAFC'"
+               placeholder="juan.perez (máx. 20 caracteres)" 
+               onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+        <p *ngIf="validationErrors()['login']" style="color: #EF4444; font-size: 0.75rem; margin-top: 0.25rem; font-weight: 600;">{{ validationErrors()['login'] }}</p>
+        <p style="color: #94A3B8; font-size: 0.7rem; margin-top: 0.25rem;">{{ form.login.length }}/{{ getCharLimit('login') }} caracteres</p>
       </div>
 
       <div *ngIf="!editingId()">
-        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Email</label>
-        <input type="email" [(ngModel)]="form.email"
+        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Email <span style="color: #EF4444;">*</span></label>
+        <input type="email" 
+               [(ngModel)]="form.email"
+               appMaxLength="email"
+               (characterLimitExceeded)="onCharacterLimitExceeded($event)"
                style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box;"
-               placeholder="juan@universidad.edu" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+               [style.borderColor]="validationErrors()['email'] ? '#EF4444' : '#E2E8F0'"
+               [style.backgroundColor]="validationErrors()['email'] ? '#FEE2E2' : '#F8FAFC'"
+               placeholder="juan@universidad.edu (máx. 35 caracteres)" 
+               onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+        <p *ngIf="validationErrors()['email']" style="color: #EF4444; font-size: 0.75rem; margin-top: 0.25rem; font-weight: 600;">{{ validationErrors()['email'] }}</p>
+        <p style="color: #94A3B8; font-size: 0.7rem; margin-top: 0.25rem;">{{ form.email.length }}/{{ getCharLimit('email') }} caracteres</p>
       </div>
 
       <div>

@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProgramService, Program } from '../../../core/services/program.service';
 import { SubjectService, Subject } from '../../../core/services/subject.service';
+import { ValidationService } from '../../../core/services/validation.service';
+import { MaxLengthDirective } from '../../../shared/directives/max-length.directive';
 
 @Component({
   selector: 'app-programs',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MaxLengthDirective],
   templateUrl: './programs.component.html'
 })
 export class ProgramsComponent implements OnInit {
@@ -19,6 +21,7 @@ export class ProgramsComponent implements OnInit {
   showModal = signal(false);
   saving = signal(false);
   editingId = signal<number | null>(null);
+  validationErrors = signal<{ [key: string]: string }>({});
 
   stats = computed(() => {
     const all = this.programs();
@@ -45,7 +48,8 @@ export class ProgramsComponent implements OnInit {
 
   constructor(
     private programService: ProgramService,
-    private subjectService: SubjectService
+    private subjectService: SubjectService,
+    private validationService: ValidationService
   ) {}
 
   ngOnInit() {
@@ -135,10 +139,4 @@ export class ProgramsComponent implements OnInit {
     });
   }
 
-  onlyLetters(event: KeyboardEvent) {
-    const pattern = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
-    if (!pattern.test(event.key)) {
-      event.preventDefault();
-    }
-  }
 }
