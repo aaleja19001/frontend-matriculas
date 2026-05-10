@@ -277,3 +277,37 @@
 
   </div>
 </div>
+
+<!-- Credentials Modal -->
+<div *ngIf="credentialsModal()" style="position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(15,23,42,0.6); backdrop-filter: blur(4px);">
+  <div style="background: white; border-radius: 1.5rem; width: 100%; max-width: 28rem; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+    <div style="background: linear-gradient(to right, #10B981, #14B8A6); padding: 1.5rem; text-align: center;">
+      <h2 style="font-size: 1.25rem; font-weight: 800; color: white; margin: 0;">¡Estudiante Creado!</h2>
+      <p style="color: #ECFDF5; font-size: 0.875rem; margin-top: 0.25rem;">Guarde estas credenciales de forma segura</p>
+    </div>
+    
+    <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+      <div>
+        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 0.5rem;">Usuario</label>
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; color: #0F172A; font-family: monospace; font-weight: 600;">
+          {{ credentialsModal()?.login }}
+        </div>
+      </div>
+      <div>
+        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 0.5rem;">Contraseña</label>
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 1rem; color: #0F172A; font-family: monospace; font-size: 1.25rem; font-weight: 700; letter-spacing: 0.1em; text-align: center;">
+          {{ credentialsModal()?.password }}
+        </div>
+        <p style="font-size: 0.75rem; color: #E11D48; margin-top: 0.75rem; font-weight: 500;">
+          ⚠️ Esta contraseña no se volverá a mostrar ni se ha enviado por correo.
+        </p>
+      </div>
+    </div>
+    
+    <div style="padding: 1rem 1.5rem; background: #F8FAFC; border-top: 1px solid #F1F5F9; display: flex; justify-content: flex-end;">
+      <button (click)="credentialsModal.set(null)" style="padding: 0.625rem 1.5rem; background: #0F172A; color: white; border: none; border-radius: 0.75rem; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
+        Entendido
+      </button>
+    </div>
+  </div>
+</div>
