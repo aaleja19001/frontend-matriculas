@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { adminGuard, advisorGuard, authGuard } from './core/auth/auth.guard';
+import { adminGuard, advisorGuard, authGuard, studentGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -85,7 +85,7 @@ export const routes: Routes = [
   },
   {
     path: 'student',
-    canActivate: [authGuard],
+    canActivate: [studentGuard],
     loadComponent: () => import('./shared/student-layout/student-layout.component').then(m => m.StudentLayoutComponent),
     children: [
       {
