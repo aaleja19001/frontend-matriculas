@@ -1,14 +1,16 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppointmentService, Appointment } from '../../../core/services/appointment.service';
-import { ToastService } from '../../../core/services/toast.service';
+import { Component, computed, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { Appointment, AppointmentService } from '../../../core/services/appointment.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-appointments',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './appointments.component.html'
 })
 export class AppointmentsComponent implements OnInit {
@@ -16,6 +18,8 @@ export class AppointmentsComponent implements OnInit {
   appointments = signal<Appointment[]>([]);
   loading = signal(false);
   selected = signal<Appointment | null>(null);
+  advisors = signal<any[]>([]);
+  selectedAdvisorId = signal<number | null>(null);
   processingId = signal<number | null>(null);
   selectedStatus = signal<string>('ALL');
   searchTerm = signal<string>('');
@@ -59,11 +63,14 @@ export class AppointmentsComponent implements OnInit {
 
   constructor(
     private appointmentService: AppointmentService,
-    private toast: ToastService
+    private toast: ToastService,
+    private userService: UserService
   ) {}
 
   ngOnInit() {
     this.loadAppointments();
+    // nothing else
+    
   }
 
   loadAppointments() {
@@ -205,6 +212,8 @@ export class AppointmentsComponent implements OnInit {
 
   openDetail(appointment: Appointment) {
     this.selected.set(appointment);
+    this.selectedAdvisorId.set(appointment.advisor?.id ?? null);
+    this.userService.getAll().subscribe({ next: data => { this.advisors.set(data.filter(u => (u.authorities||[]).includes('ROLE_ADVISOR'))); }, error: () => this.advisors.set([]) });
   }
 
   closeDetail() {
@@ -213,17 +222,18 @@ export class AppointmentsComponent implements OnInit {
 
   approve(id: number) {
     this.processingId.set(id);
-    this.appointmentService.updateStatus(id, 'APPROVED').subscribe({
-      next: () => { 
+    const ap = this.selected();
+    if (!ap) return;
+    const payload: any = { ...ap, status: 'APPROVED' };
+    if (this.selectedAdvisorId()) payload.advisor = { id: this.selectedAdvisorId() };
+    this.appointmentService.update(id, payload).subscribe({
+      next: () => {
         this.toast.success('Cita aprobada con éxito');
-        this.loadAppointments(); 
-        this.closeDetail(); 
-        this.processingId.set(null); 
-      },
-      error: () => {
-        this.toast.error('Error al aprobar la cita');
+        this.loadAppointments();
+        this.closeDetail();
         this.processingId.set(null);
-      }
+      },
+      error: () => { this.toast.error('Error al aprobar la cita'); this.processingId.set(null); }
     });
   }
 

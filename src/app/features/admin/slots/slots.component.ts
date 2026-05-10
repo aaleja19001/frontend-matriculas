@@ -1,7 +1,8 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, computed, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AvailableSlotService, AvailableSlot } from '../../../core/services/available-slot.service';
+import { AvailableSlot, AvailableSlotService } from '../../../core/services/available-slot.service';
+import { AdminUser, UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-slots',
@@ -16,6 +17,7 @@ export class SlotsComponent implements OnInit {
   showModal = signal(false);
   saving = signal(false);
   deletingId = signal<number | null>(null);
+  advisors = signal<AdminUser[]>([]);
 
   stats = computed(() => {
     const all = this.slots();
@@ -26,15 +28,15 @@ export class SlotsComponent implements OnInit {
     };
   });
 
-  form: AvailableSlot = {
+  form: any = {
     startTime: '',
-    endTime: '',
     availableSpots: 1,
     active: true,
-    program: { id: 2 }
+    program: { id: 2 },
+    advisors: []
   };
-
-  constructor(private slotService: AvailableSlotService) {}
+  
+  constructor(private slotService: AvailableSlotService, private userService: UserService) {}
 
   ngOnInit() {
     this.loadSlots();
@@ -52,7 +54,8 @@ export class SlotsComponent implements OnInit {
   }
 
   openModal() {
-    this.form = { startTime: '', endTime: '', availableSpots: 1, active: true, program: { id: 2 } };
+    this.form = { startTime: '', availableSpots: 1, active: true, program: { id: 2 }, advisors: [] } as any;
+    this.userService.getAll().subscribe({ next: data => { this.advisors.set(data.filter(u => (u.authorities||[]).includes('ROLE_ADVISOR'))); }, error: () => this.advisors.set([]) });
     this.showModal.set(true);
   }
 
@@ -65,7 +68,7 @@ export class SlotsComponent implements OnInit {
     const payload = {
       ...this.form,
       startTime: `${this.form.startTime}:00Z`,
-      endTime: `${this.form.endTime}:00Z`
+      advisors: (this.form as any).advisors ? (this.form as any).advisors.map((id: any) => ({ id })) : undefined
     };
     this.slotService.create(payload).subscribe({
       next: () => { 
@@ -97,5 +100,26 @@ export class SlotsComponent implements OnInit {
     return new Date(date).toLocaleString('es-CO', {
       dateStyle: 'medium', timeStyle: 'short'
     });
+  }
+
+  formatEndDate(start: string) {
+    if (!start) return '—';
+    const d = new Date(start);
+    d.setMinutes(d.getMinutes() + 30);
+    return d.toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
+  }
+
+  onAdvisorToggle(id: number | undefined, event: Event) {
+    const checked = (event.target as HTMLInputElement).checked;
+    const arr = (this.form as any).advisors || [];
+    if (checked) {
+      if (id !== undefined && !arr.includes(id)) arr.push(id);
+    } else {
+      if (id !== undefined) {
+        const idx = arr.indexOf(id);
+        if (idx >= 0) arr.splice(idx, 1);
+      }
+    }
+    (this.form as any).advisors = [...arr];
   }
 }

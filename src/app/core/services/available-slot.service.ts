@@ -1,15 +1,15 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 
 export interface AvailableSlot {
   id?: number;
   startTime: string;
-  endTime: string;
   availableSpots: number;
   bookedSpots?: number;
   active?: boolean;
   program?: { id: number; name?: string };
+  advisors?: { id?: number; login?: string; firstName?: string; lastName?: string }[];
 }
 
 @Injectable({ providedIn: 'root' })

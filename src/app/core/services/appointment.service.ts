@@ -22,6 +22,7 @@ export interface Appointment {
   student?: { id: number; firstName?: string; lastName?: string; studentCode?: string };
   availableSlot?: { id: number; startTime?: string; endTime?: string };
   enrollments?: Enrollment[];
+  advisor?: { id?: number; login?: string; firstName?: string; lastName?: string };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -55,8 +56,16 @@ export class AppointmentService {
   return this.http.post<Appointment>(this.url, appointment);
 }
 
+  update(id: number, appointment: any) {
+    return this.http.put<Appointment>(`${this.url}/${id}`, appointment);
+  }
+
 getByStudent(studentId: number) {
   return this.http.get<Appointment[]>(`${this.url}/student/${studentId}`);
+}
+
+getByAdvisor(advisorId: number) {
+  return this.http.get<Appointment[]>(`${this.url}/advisor/${advisorId}`);
 }
 
 }

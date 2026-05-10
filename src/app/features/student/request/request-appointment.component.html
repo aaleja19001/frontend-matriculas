@@ -109,6 +109,19 @@
             </select>
           </div>
 
+          <!-- Advisor Information -->
+          <div *ngIf="getSelectedSlot() as selectedSlot" style="background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 0.75rem; padding: 1rem; margin-top: -0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; color: #0369A1;">
+              <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              <span style="font-size: 0.875rem; font-weight: 600;">Asesor(es) asignado(s):</span>
+            </div>
+            <p style="font-size: 0.875rem; color: #075985; margin-top: 0.25rem; font-weight: 500;">
+              {{ advisorList(selectedSlot) || 'Por asignar' }}
+            </p>
+          </div>
+
           <div>
             <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #0F172A; margin-bottom: 0.5rem;">Créditos cursados actualmente</label>
             <input type="number" [(ngModel)]="form.currentCredits"
