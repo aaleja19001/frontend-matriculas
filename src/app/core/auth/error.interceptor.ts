@@ -82,11 +82,44 @@ function formatErrorMessage(error: HttpErrorResponse): string {
   
   if (error.error) {
     if (typeof error.error === 'object') {
-      message = error.error.message 
-        || error.error.error 
-        || JSON.stringify(error.error).substring(0, 200);
+      const detail = error.error.detail || error.error.message || error.error.title || error.message || '';
+      
+      // Mapeos amigables para errores de integridad de base de datos
+      if (detail.includes('duplicate key value') || detail.includes('ConstraintViolationException') || detail.includes('DataIntegrityViolationException') || detail.includes('could not execute statement')) {
+        if (detail.includes('student_code') || detail.includes('ukpilb3uo1cimnf1sp86nqcrjsv')) {
+          message = 'El código de estudiante ya existe en el sistema.';
+        } else if (detail.includes('national_id')) {
+          message = 'La identificación (cédula) ya existe en el sistema.';
+        } else if (detail.includes('email')) {
+          message = 'El correo electrónico ya existe en el sistema.';
+        } else if (detail.includes('login')) {
+          message = 'El nombre de usuario (login) ya está en uso.';
+        } else {
+          message = 'Ya existe un registro con esa información (duplicado).';
+        }
+      } else {
+        message = error.error.message 
+          || error.error.detail
+          || error.error.title
+          || error.error.error 
+          || JSON.stringify(error.error).substring(0, 200);
+      }
     } else if (typeof error.error === 'string') {
-      message = error.error;
+      const detail = error.error || error.message || '';
+      if (detail.includes('duplicate key value') || detail.includes('could not execute statement')) {
+        message = 'Ya existe un registro con esa información (duplicado).';
+        if (detail.includes('student_code')) message = 'El código de estudiante ya existe.';
+        if (detail.includes('national_id')) message = 'La identificación ya existe.';
+      } else {
+        message = error.error;
+      }
+    }
+  } else if (error.message) {
+    const detail = error.message;
+    if (detail.includes('duplicate key value') || detail.includes('could not execute statement')) {
+      message = 'Ya existe un registro con esa información (duplicado).';
+      if (detail.includes('student_code')) message = 'El código de estudiante ya existe.';
+      if (detail.includes('national_id')) message = 'La identificación ya existe.';
     }
   }
 

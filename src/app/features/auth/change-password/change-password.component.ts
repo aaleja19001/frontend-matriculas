@@ -36,7 +36,7 @@ import { MaxLengthDirective } from '../../../shared/directives/max-length.direct
               <label style="color: #94A3B8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-left: 0.25rem;">Contraseña Actual</label>
               <div style="position: relative;">
                 <input [type]="showCurrent ? 'text' : 'password'" [(ngModel)]="currentPassword" name="currentPassword" required
-                       style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; padding: 0.875rem 1.25rem; color: white; font-size: 0.875rem; outline: none; transition: all 0.2s; box-sizing: border-box;"
+                       class="dark-input"
                        placeholder="Ingresa tu contraseña temporal"
                        appMaxLength="password">
                 <button type="button" (click)="showCurrent = !showCurrent" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748B; cursor: pointer; padding: 0.25rem;">
@@ -51,7 +51,7 @@ import { MaxLengthDirective } from '../../../shared/directives/max-length.direct
             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
               <label style="color: #94A3B8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-left: 0.25rem;">Nueva Contraseña</label>
               <input [type]="showNew ? 'text' : 'password'" [(ngModel)]="newPassword" name="newPassword" required
-                     style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; padding: 0.875rem 1.25rem; color: white; font-size: 0.875rem; outline: none; transition: all 0.2s; box-sizing: border-box;"
+                     class="dark-input"
                      placeholder="Mínimo 8 caracteres"
                      appMaxLength="password">
             </div>
@@ -59,7 +59,7 @@ import { MaxLengthDirective } from '../../../shared/directives/max-length.direct
             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
               <label style="color: #94A3B8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-left: 0.25rem;">Confirmar Nueva Contraseña</label>
               <input [type]="showNew ? 'text' : 'password'" [(ngModel)]="confirmPassword" name="confirmPassword" required
-                     style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; padding: 0.875rem 1.25rem; color: white; font-size: 0.875rem; outline: none; transition: all 0.2s; box-sizing: border-box;"
+                     class="dark-input"
                      placeholder="Repite la nueva contraseña"
                      appMaxLength="password">
             </div>
@@ -89,6 +89,22 @@ import { MaxLengthDirective } from '../../../shared/directives/max-length.direct
 
     <style>
       @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      .dark-input {
+        width: 100%;
+        background-color: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1rem;
+        padding: 0.875rem 1.25rem;
+        color: white !important;
+        font-size: 0.875rem;
+        outline: none;
+        transition: all 0.2s;
+        box-sizing: border-box;
+      }
+      .dark-input:focus {
+        border-color: #2563EB !important;
+        background-color: rgba(15, 23, 42, 0.9) !important;
+      }
     </style>
   `
 })
