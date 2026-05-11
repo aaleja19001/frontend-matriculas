@@ -56,7 +56,7 @@ export class RequestAppointmentComponent implements OnInit {
         // Check if student already has active appointments
         this.appointmentService.getByStudent(student.id!).subscribe({
           next: appointments => {
-            const activeAppointments = appointments.filter(a => a.status !== 'CANCELLED');
+            const activeAppointments = appointments.filter(a => a.status === 'PENDING' || a.status === 'RESCHEDULED');
             if (activeAppointments.length > 0) {
               this.error.set('Ya tienes una cita activa. No puedes programar más de una cita a la vez.');
               this.loading.set(false);
