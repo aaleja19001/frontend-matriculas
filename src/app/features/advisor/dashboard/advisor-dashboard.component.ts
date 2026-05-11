@@ -95,7 +95,7 @@ import { ToastService } from '../../../core/services/toast.service';
                     <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
                           [ngClass]="{
                             'bg-amber-50 text-amber-600 border border-amber-100': a.status === 'PENDING',
-                            'bg-emerald-50 text-emerald-600 border border-emerald-100': a.status === 'APPROVED',
+                            'bg-emerald-50 text-emerald-700 border border-emerald-100': a.status === 'APPROVED',
                             'bg-slate-50 text-slate-500 border border-slate-100': a.status === 'CANCELLED',
                             'bg-rose-50 text-rose-600 border border-rose-100': a.status === 'REJECTED'
                           }">
@@ -321,6 +321,7 @@ export class AdvisorDashboardComponent implements OnInit {
       next: () => {
         this.toast.success(`Cita ${status === 'APPROVED' ? 'aprobada' : 'rechazada'}`);
         this.loadAppointments();
+        this.appointmentService.refreshPendingCount();
         this.closeDetail();
       },
       error: () => this.toast.error('Error al actualizar el estado')
@@ -333,6 +334,7 @@ export class AdvisorDashboardComponent implements OnInit {
         next: () => {
           this.toast.success('Cita cancelada');
           this.loadAppointments();
+          this.appointmentService.refreshPendingCount();
         },
         error: () => this.toast.error('Error al cancelar la cita')
       });

@@ -78,6 +78,9 @@ export class AppointmentsComponent implements OnInit {
     this.appointmentService.getAll().subscribe({
       next: data => {
         this.appointments.set([...data]);
+        // Actualizar contador global de pendientes para el sidebar
+        const count = data.filter(a => a.status === 'PENDING').length;
+        this.appointmentService.pendingCount.set(count);
         this.loading.set(false);
       },
       error: (err) => {

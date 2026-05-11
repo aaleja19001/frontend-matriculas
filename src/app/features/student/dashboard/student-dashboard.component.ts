@@ -77,6 +77,7 @@ export class StudentDashboardComponent implements OnInit {
         next: () => {
           this.toast.success('Cita cancelada correctamente');
           this.loadAppointments();
+          this.appointmentService.refreshPendingCount();
         },
         error: (err) => {
           const msg = err.error?.detail || err.error?.message || 'Error desconocido';
