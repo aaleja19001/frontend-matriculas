@@ -20,7 +20,7 @@ import { ToastService } from '../../../core/services/toast.service';
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Panel de Asesoría</span>
           </div>
-          <h1 class="text-3xl font-black text-slate-900 tracking-tight">¡Hola, {{ advisorName() }}! 👨‍🏫</h1>
+          <h1 class="text-3xl font-black text-slate-900 tracking-tight">¡Hola, {{ advisorName() }}!</h1>
           <p class="text-slate-500 mt-2 max-w-md font-medium">Gestiona tus citas asignadas y apoya a los estudiantes en su proceso de matrícula.</p>
         </div>
         

@@ -174,10 +174,18 @@ export class StudentsComponent implements OnInit {
                 this.credentialsModal.set({ login: user.login, password: user.password });
               }
             },
-            error: () => { this.saving.set(false); }
+            error: (err) => { 
+              this.saving.set(false); 
+              // Rollback user creation
+              this.http.delete(`${environment.apiUrl}/admin/users/${user.login}`).subscribe();
+              // No es necesario un alert() porque el error.interceptor.ts muestra el Toast
+            }
           });
         },
-        error: () => { this.saving.set(false); }
+        error: (err) => { 
+          this.saving.set(false); 
+          // No es necesario un alert() porque el error.interceptor.ts muestra el Toast
+        }
       });
     }
   }
