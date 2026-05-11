@@ -2,11 +2,13 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProfessorService, Professor } from '../../../core/services/professor.service';
+import { ValidationService } from '../../../core/services/validation.service';
+import { MaxLengthDirective } from '../../../shared/directives/max-length.directive';
 
 @Component({
   selector: 'app-professors',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MaxLengthDirective],
   templateUrl: './professors.component.html'
 })
 export class ProfessorsComponent implements OnInit {
@@ -17,6 +19,7 @@ export class ProfessorsComponent implements OnInit {
   showModal = signal(false);
   saving = signal(false);
   editingId = signal<number | null>(null);
+  validationErrors = signal<{ [key: string]: string }>({});
 
   stats = computed(() => {
     const all = this.professors();
@@ -47,11 +50,60 @@ export class ProfessorsComponent implements OnInit {
   };
 
   constructor(
-    private professorService: ProfessorService
+    private professorService: ProfessorService,
+    private validationService: ValidationService
   ) {}
 
   ngOnInit() {
     this.loadProfessors();
+  }
+
+  onCharacterLimitExceeded(event: { field: string; limit: number; current: number }): void {
+    const errorMsg = this.validationService.formatErrorMessage(
+      event.field,
+      event.limit,
+      event.current
+    );
+    
+    this.validationErrors.update(errors => ({
+      ...errors,
+      [event.field]: errorMsg
+    }));
+
+    setTimeout(() => {
+      this.validationErrors.update(errors => {
+        const newErrors = { ...errors };
+        delete newErrors[event.field];
+        return newErrors;
+      });
+    }, 3000);
+  }
+
+  getCharLimit(fieldName: string): number {
+    return this.validationService.getFieldLimit(fieldName);
+  }
+
+  validateForm(): boolean {
+    const fieldsToValidate = {
+      firstName: this.form.firstName,
+      lastName: this.form.lastName,
+      email: this.form.email,
+      nationalId: this.form.nationalId
+    };
+
+    const errors = this.validationService.validateFields(fieldsToValidate);
+    
+    if (errors.length > 0) {
+      const errorMap: { [key: string]: string } = {};
+      errors.forEach(err => {
+        errorMap[err.field] = err.message;
+      });
+      this.validationErrors.set(errorMap);
+      return false;
+    }
+
+    this.validationErrors.set({});
+    return true;
   }
 
   loadProfessors() {
@@ -73,6 +125,7 @@ export class ProfessorsComponent implements OnInit {
   openCreate() {
     this.editingId.set(null);
     this.form = { firstName: '', lastName: '', email: '', nationalId: '', active: true };
+    this.validationErrors.set({});
     this.showModal.set(true);
   }
 
@@ -85,6 +138,7 @@ export class ProfessorsComponent implements OnInit {
       nationalId: professor.nationalId,
       active: professor.active
     };
+    this.validationErrors.set({});
     this.showModal.set(true);
   }
 
@@ -94,6 +148,8 @@ export class ProfessorsComponent implements OnInit {
   }
 
   save() {
+    if (!this.validateForm()) return;
+
     this.saving.set(true);
     const professorData: Professor = {
       firstName: this.form.firstName,
@@ -121,21 +177,11 @@ export class ProfessorsComponent implements OnInit {
     if (!confirm('¿Estás seguro de eliminar este profesor?')) return;
     this.professorService.delete(id).subscribe({
       next: () => { this.loadProfessors(); },
-      error: () => { alert('No se puede eliminar el profesor. Puede que esté asociado a materias.'); }
+      error: () => { 
+        // El ErrorInterceptor ya muestra el mensaje en un toast.
+        // Aquí podrías agregar lógica adicional si fuera necesario.
+      }
     });
   }
 
-  onlyLetters(event: KeyboardEvent) {
-    const pattern = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
-    if (!pattern.test(event.key)) {
-      event.preventDefault();
-    }
-  }
-
-  onlyNumbers(event: KeyboardEvent) {
-    const pattern = /^[0-9]$/;
-    if (!pattern.test(event.key)) {
-      event.preventDefault();
-    }
-  }
 }

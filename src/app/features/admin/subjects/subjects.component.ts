@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SubjectService, Subject } from '../../../core/services/subject.service';
 import { ProgramService, Program } from '../../../core/services/program.service';
+import { MaxLengthDirective } from '../../../shared/directives/max-length.directive';
 
 @Component({
   selector: 'app-subjects',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MaxLengthDirective],
   templateUrl: './subjects.component.html'
 })
 export class SubjectsComponent implements OnInit {
@@ -139,10 +140,4 @@ export class SubjectsComponent implements OnInit {
     });
   }
 
-  onlyLetters(event: KeyboardEvent) {
-    const pattern = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
-    if (!pattern.test(event.key)) {
-      event.preventDefault();
-    }
-  }
 }

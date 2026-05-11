@@ -78,7 +78,7 @@ export class AuthService {
 
   isAdvisor(): boolean {
     const user = this.getSavedUser();
-    return user?.auth?.includes('ROLE_ASESOR') ?? false;
+    return user?.auth?.includes('ROLE_ADVISOR') ?? false;
   }
 
   private getSavedUser(): any {

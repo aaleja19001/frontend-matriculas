@@ -148,29 +148,65 @@
     <div style="display: flex; flex-direction: column; gap: 1.25rem;">
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
         <div>
-          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Nombre</label>
-          <input type="text" [(ngModel)]="form.firstName" (keypress)="onlyLetters($event)"
+          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+            Nombre <span style="color: #EF4444;">*</span>
+          </label>
+          <input type="text" [(ngModel)]="form.firstName"
+                 appMaxLength="firstName" (characterLimitExceeded)="onCharacterLimitExceeded($event)"
                  style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box;"
+                 [style.borderColor]="validationErrors()['firstName'] ? '#EF4444' : '#E2E8F0'"
+                 [style.backgroundColor]="validationErrors()['firstName'] ? '#FEE2E2' : '#F8FAFC'"
                  placeholder="Ej: Juan" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+          <div style="display: flex; justify-content: space-between; margin-top: 0.25rem;">
+            <p *ngIf="validationErrors()['firstName']" style="color: #EF4444; font-size: 0.7rem; font-weight: 600;">{{ validationErrors()['firstName'] }}</p>
+            <p *ngIf="!validationErrors()['firstName']" style="color: #94A3B8; font-size: 0.7rem;">{{ form.firstName.length }}/{{ getCharLimit('firstName') }} caracteres</p>
+          </div>
         </div>
         <div>
-          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Apellido</label>
-          <input type="text" [(ngModel)]="form.lastName" (keypress)="onlyLetters($event)"
+          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+            Apellido <span style="color: #EF4444;">*</span>
+          </label>
+          <input type="text" [(ngModel)]="form.lastName"
+                 appMaxLength="lastName" (characterLimitExceeded)="onCharacterLimitExceeded($event)"
                  style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box;"
+                 [style.borderColor]="validationErrors()['lastName'] ? '#EF4444' : '#E2E8F0'"
+                 [style.backgroundColor]="validationErrors()['lastName'] ? '#FEE2E2' : '#F8FAFC'"
                  placeholder="Ej: Pérez" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+          <div style="display: flex; justify-content: space-between; margin-top: 0.25rem;">
+            <p *ngIf="validationErrors()['lastName']" style="color: #EF4444; font-size: 0.7rem; font-weight: 600;">{{ validationErrors()['lastName'] }}</p>
+            <p *ngIf="!validationErrors()['lastName']" style="color: #94A3B8; font-size: 0.7rem;">{{ form.lastName.length }}/{{ getCharLimit('lastName') }} caracteres</p>
+          </div>
         </div>
       </div>
       <div>
-        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Email Institucional</label>
+        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+          Email Institucional <span style="color: #EF4444;">*</span>
+        </label>
         <input type="email" [(ngModel)]="form.email"
+               appMaxLength="email" (characterLimitExceeded)="onCharacterLimitExceeded($event)"
                style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box;"
+               [style.borderColor]="validationErrors()['email'] ? '#EF4444' : '#E2E8F0'"
+               [style.backgroundColor]="validationErrors()['email'] ? '#FEE2E2' : '#F8FAFC'"
                placeholder="Ej: juan.perez@universidad.edu" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+        <div style="display: flex; justify-content: space-between; margin-top: 0.25rem;">
+          <p *ngIf="validationErrors()['email']" style="color: #EF4444; font-size: 0.7rem; font-weight: 600;">{{ validationErrors()['email'] }}</p>
+          <p *ngIf="!validationErrors()['email']" style="color: #94A3B8; font-size: 0.7rem;">{{ form.email.length }}/{{ getCharLimit('email') }} caracteres</p>
+        </div>
       </div>
       <div>
-        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Identificación</label>
-        <input type="text" [(ngModel)]="form.nationalId" (keypress)="onlyNumbers($event)"
+        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+          Identificación <span style="color: #EF4444;">*</span>
+        </label>
+        <input type="text" [(ngModel)]="form.nationalId"
+               appMaxLength="nationalId" (characterLimitExceeded)="onCharacterLimitExceeded($event)"
                style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box; font-family: 'DM Mono', monospace;"
+               [style.borderColor]="validationErrors()['nationalId'] ? '#EF4444' : '#E2E8F0'"
+               [style.backgroundColor]="validationErrors()['nationalId'] ? '#FEE2E2' : '#F8FAFC'"
                placeholder="Ej: 12345678" onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
+        <div style="display: flex; justify-content: space-between; margin-top: 0.25rem;">
+          <p *ngIf="validationErrors()['nationalId']" style="color: #EF4444; font-size: 0.7rem; font-weight: 600;">{{ validationErrors()['nationalId'] }}</p>
+          <p *ngIf="!validationErrors()['nationalId']" style="color: #94A3B8; font-size: 0.7rem;">{{ form.nationalId.length }}/{{ getCharLimit('nationalId') }} caracteres</p>
+        </div>
       </div>
       <div style="display: flex; align-items: center; justify-content: space-between; background: #F8FAFC; padding: 1rem; border-radius: 1rem; border: 1px solid #F1F5F9;">
         <div>
@@ -189,9 +225,9 @@
               onmouseover="this.style.backgroundColor='#E2E8F0'">
         Cancelar
       </button>
-      <button (click)="save()" [disabled]="saving() || !form.firstName || !form.lastName || !form.email || !form.nationalId"
+      <button (click)="save()" [disabled]="saving() || !form.firstName || !form.lastName || !form.email || !form.nationalId || (validationErrors() | json) !== '{}'"
               style="flex: 1; padding: 0.75rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 700; background-color: #2563EB; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);"
-              [style.opacity]="(saving() || !form.firstName || !form.lastName || !form.email || !form.nationalId) ? 0.5 : 1"
+              [style.opacity]="(saving() || !form.firstName || !form.lastName || !form.email || !form.nationalId || (validationErrors() | json) !== '{}') ? 0.5 : 1"
               onmouseover="this.style.backgroundColor='#1D4ED8'">
         <svg *ngIf="saving()" style="animation: spin 1s linear infinite; width: 1.125rem; height: 1.125rem;" fill="none" viewBox="0 0 24 24">
           <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/>

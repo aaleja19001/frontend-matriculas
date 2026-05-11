@@ -11,6 +11,7 @@ export interface AdminUser {
   activated?: boolean;
   langKey?: string;
   authorities?: string[];
+  password?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -27,8 +28,8 @@ export class UserService {
     return this.http.get<AdminUser>(`${this.url}/${login}`);
   }
 
-  create(user: AdminUser) {
-    return this.http.post<AdminUser>(this.url, user);
+  create(user: AdminUser, sendEmail: boolean = true) {
+    return this.http.post<AdminUser>(`${this.url}?sendEmail=${sendEmail}`, user);
   }
 
   update(login: string, user: AdminUser) {

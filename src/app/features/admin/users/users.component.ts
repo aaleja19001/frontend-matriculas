@@ -2,11 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AdminUser, UserService } from '../../../core/services/user.service';
+import { ValidationService } from '../../../core/services/validation.service';
+import { MaxLengthDirective } from '../../../shared/directives/max-length.directive';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MaxLengthDirective],
   templateUrl: './users.component.html'
 })
 export class UsersComponent implements OnInit {
@@ -16,10 +18,16 @@ export class UsersComponent implements OnInit {
   saving = signal(false);
   editingLogin = signal<string | null>(null);
   search = signal('');
+  validationErrors = signal<{ [key: string]: string }>({});
+  credentialsModal = signal<{ login: string; password?: string } | null>(null);
+
 
   form: AdminUser = { login: '', firstName: '', lastName: '', email: '', activated: true, langKey: 'es', authorities: [] };
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private validationService: ValidationService
+  ) {}
 
   ngOnInit() {
     this.loadUsers();
@@ -88,8 +96,16 @@ export class UsersComponent implements OnInit {
         error: () => { this.saving.set(false); }
       });
     } else {
-      this.userService.create(payload).subscribe({
-        next: () => { this.saving.set(false); this.closeModal(); this.loadUsers(); },
+      const sendEmail = localStorage.getItem('admin_send_credentials_email') !== 'false';
+      this.userService.create(payload, sendEmail).subscribe({
+        next: (createdUser) => { 
+          this.saving.set(false); 
+          this.closeModal(); 
+          this.loadUsers(); 
+          if (!sendEmail && createdUser.password) {
+            this.credentialsModal.set({ login: createdUser.login, password: createdUser.password });
+          }
+        },
         error: () => { this.saving.set(false); }
       });
     }
@@ -98,6 +114,29 @@ export class UsersComponent implements OnInit {
   delete(login: string) {
     if (!confirm('¿Eliminar usuario?')) return;
     this.userService.delete(login).subscribe({ next: () => this.loadUsers() });
+  }
+
+  onCharacterLimitExceeded(event: { field: string; limit: number; current: number }): void {
+    const errorMsg = this.validationService.formatErrorMessage(
+      event.field,
+      event.limit,
+      event.current
+    );
+    this.validationErrors.update(errors => ({
+      ...errors,
+      [event.field]: errorMsg
+    }));
+    setTimeout(() => {
+      this.validationErrors.update(errors => {
+        const newErrors = { ...errors };
+        delete newErrors[event.field];
+        return newErrors;
+      });
+    }, 3000);
+  }
+
+  getCharLimit(fieldName: string): number {
+    return this.validationService.getFieldLimit(fieldName);
   }
 
   filtered = computed(() => {

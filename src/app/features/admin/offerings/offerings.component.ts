@@ -5,11 +5,13 @@ import { forkJoin } from 'rxjs';
 import { Professor, ProfessorService } from '../../../core/services/professor.service';
 import { DayOfWeek, DayOfWeekNames, SubjectOffering, SubjectOfferingService } from '../../../core/services/subject-offering.service';
 import { Subject, SubjectService } from '../../../core/services/subject.service';
+import { MaxLengthDirective } from '../../../shared/directives/max-length.directive';
+import { ValidationService } from '../../../core/services/validation.service';
 
 @Component({
   selector: 'app-offerings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MaxLengthDirective],
   templateUrl: './offerings.component.html'
 })
 export class OfferingsComponent implements OnInit {
@@ -21,6 +23,7 @@ export class OfferingsComponent implements OnInit {
   showModal = false;
   saving = false;
   editingId: number | null = null;
+  validationErrors: { [key: string]: string } = {};
   
   DayOfWeekNames = DayOfWeekNames;
   daysOfWeek: DayOfWeek[] = [DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY];
@@ -31,7 +34,7 @@ export class OfferingsComponent implements OnInit {
     dayOfWeek: DayOfWeek.MONDAY,
     startTime: '',
     endTime: '',
-    semester: '2024-1',
+    semester: '2026-02',
     capacity: 30
   };
 
@@ -39,6 +42,7 @@ export class OfferingsComponent implements OnInit {
     private offeringService: SubjectOfferingService,
     private subjectService: SubjectService,
     private professorService: ProfessorService,
+    private validationService: ValidationService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -72,9 +76,10 @@ export class OfferingsComponent implements OnInit {
       dayOfWeek: DayOfWeek.MONDAY,
       startTime: '', 
       endTime: '', 
-      semester: '2024-1', 
+      semester: '2026-02', 
       capacity: 30 
     };
+    this.validationErrors = {};
     this.showModal = true;
   }
 
@@ -89,6 +94,7 @@ export class OfferingsComponent implements OnInit {
       semester: offering.semester,
       capacity: offering.capacity
     };
+    this.validationErrors = {};
     this.showModal = true;
   }
 
@@ -100,6 +106,13 @@ export class OfferingsComponent implements OnInit {
   save() {
     if (!this.form.subjectId || !this.form.professorId || !this.form.startTime || !this.form.endTime) return;
     
+    const errors = this.validationService.validateFields({ semester: this.form.semester });
+    if (errors.length > 0) {
+      this.validationErrors = { [errors[0].field]: errors[0].message };
+      return;
+    }
+    this.validationErrors = {};
+
     this.saving = true;
     const payload: any = {
       dayOfWeek: this.form.dayOfWeek,

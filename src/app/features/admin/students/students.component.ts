@@ -3,12 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { StudentService, Student } from '../../../core/services/student.service';
+import { ValidationService } from '../../../core/services/validation.service';
+import { MaxLengthDirective } from '../../../shared/directives/max-length.directive';
 import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-students',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MaxLengthDirective],
   templateUrl: './students.component.html'
 })
 export class StudentsComponent implements OnInit {
@@ -21,6 +23,9 @@ export class StudentsComponent implements OnInit {
   saving = signal(false);
   deletingId = signal<number | null>(null);
   editingId = signal<number | null>(null);
+  validationErrors = signal<{ [key: string]: string }>({});
+  credentialsModal = signal<{ login: string; password?: string } | null>(null);
+
 
   stats = computed(() => {
     const all = this.students();
@@ -54,7 +59,8 @@ export class StudentsComponent implements OnInit {
 
   constructor(
     private studentService: StudentService,
-    private http: HttpClient
+    private http: HttpClient,
+    private validationService: ValidationService
   ) {}
 
   ngOnInit() {
@@ -146,7 +152,9 @@ export class StudentsComponent implements OnInit {
         authorities: ['ROLE_USER']
       };
 
-      this.http.post<any>(`${environment.apiUrl}/admin/users`, userPayload).subscribe({
+      const sendEmail = localStorage.getItem('admin_send_credentials_email') !== 'false';
+
+      this.http.post<any>(`${environment.apiUrl}/admin/users?sendEmail=${sendEmail}`, userPayload).subscribe({
         next: user => {
           const studentPayload = {
             firstName: this.form.firstName,
@@ -162,11 +170,22 @@ export class StudentsComponent implements OnInit {
               this.saving.set(false);
               this.closeModal();
               this.loadStudents();
+              if (!sendEmail && user.password) {
+                this.credentialsModal.set({ login: user.login, password: user.password });
+              }
             },
-            error: () => { this.saving.set(false); }
+            error: (err) => { 
+              this.saving.set(false); 
+              // Rollback user creation
+              this.http.delete(`${environment.apiUrl}/admin/users/${user.login}`).subscribe();
+              // No es necesario un alert() porque el error.interceptor.ts muestra el Toast
+            }
           });
         },
-        error: () => { this.saving.set(false); }
+        error: (err) => { 
+          this.saving.set(false); 
+          // No es necesario un alert() porque el error.interceptor.ts muestra el Toast
+        }
       });
     }
   }
@@ -190,17 +209,65 @@ export class StudentsComponent implements OnInit {
     return `${student.firstName?.charAt(0) ?? ''}${student.lastName?.charAt(0) ?? ''}`;
   }
 
-  onlyLetters(event: KeyboardEvent) {
-    const pattern = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
-    if (!pattern.test(event.key)) {
-      event.preventDefault();
-    }
+
+
+  /**
+   * Maneja el evento cuando se excede el límite de caracteres
+   */
+  onCharacterLimitExceeded(event: { field: string; limit: number; current: number }): void {
+    const errorMsg = this.validationService.formatErrorMessage(
+      event.field,
+      event.limit,
+      event.current
+    );
+    
+    this.validationErrors.update(errors => ({
+      ...errors,
+      [event.field]: errorMsg
+    }));
+
+    // Limpiar el error después de 3 segundos
+    setTimeout(() => {
+      this.validationErrors.update(errors => {
+        const newErrors = { ...errors };
+        delete newErrors[event.field];
+        return newErrors;
+      });
+    }, 3000);
   }
 
-  onlyNumbers(event: KeyboardEvent) {
-    const pattern = /^[0-9]$/;
-    if (!pattern.test(event.key)) {
-      event.preventDefault();
+  /**
+   * Valida todos los campos antes de guardar
+   */
+  validateForm(): boolean {
+    const fieldsToValidate = {
+      firstName: this.form.firstName,
+      lastName: this.form.lastName,
+      studentCode: this.form.studentCode,
+      nationalId: this.form.nationalId,
+      login: this.editingId() ? '' : this.form.login, // No validar login si estamos editando
+      email: this.editingId() ? '' : this.form.email
+    };
+
+    const errors = this.validationService.validateFields(fieldsToValidate);
+    
+    if (errors.length > 0) {
+      const errorMap: { [key: string]: string } = {};
+      errors.forEach(err => {
+        errorMap[err.field] = err.message;
+      });
+      this.validationErrors.set(errorMap);
+      return false;
     }
+
+    this.validationErrors.set({});
+    return true;
+  }
+
+  /**
+   * Obtiene el límite de caracteres para un campo
+   */
+  getCharLimit(fieldName: string): number {
+    return this.validationService.getFieldLimit(fieldName);
   }
 }
