@@ -33,8 +33,8 @@ export class ValidationService {
     country: 20,
     semester: 7, // YYYY-PP
     
-    // Email: 35 caracteres
-    email: 35,
+    // Email: 50 caracteres
+    email: 50,
     
     // Otros campos por defecto: 20
     default: 20

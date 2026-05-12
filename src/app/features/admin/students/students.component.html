@@ -184,18 +184,14 @@
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
         <div>
-          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Código Estudiantil <span style="color: #EF4444;">*</span></label>
-          <input type="text" 
+          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Código Estudiantil</label>
+          <input *ngIf="editingId()" type="text" 
                  [(ngModel)]="form.studentCode" 
-                 appMaxLength="studentCode"
-                 (characterLimitExceeded)="onCharacterLimitExceeded($event)"
-                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box; font-family: 'DM Mono', monospace;"
-                 [style.borderColor]="validationErrors()['studentCode'] ? '#EF4444' : '#E2E8F0'"
-                 [style.backgroundColor]="validationErrors()['studentCode'] ? '#FEE2E2' : '#F8FAFC'"
-                 placeholder="2023001 (máx. 20 caracteres)" 
-                 onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
-          <p *ngIf="validationErrors()['studentCode']" style="color: #EF4444; font-size: 0.75rem; margin-top: 0.25rem; font-weight: 600;">{{ validationErrors()['studentCode'] }}</p>
-          <p style="color: #94A3B8; font-size: 0.7rem; margin-top: 0.25rem;">{{ form.studentCode.length }}/{{ getCharLimit('studentCode') }} caracteres</p>
+                 disabled
+                 style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #94A3B8; background-color: #F1F5F9; outline: none; transition: all 0.2s; box-sizing: border-box; font-family: 'DM Mono', monospace; cursor: not-allowed;"/>
+          <div *ngIf="!editingId()" style="width: 100%; border: 1px dashed #CBD5E1; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #64748B; background-color: #F8FAFC; box-sizing: border-box; font-family: 'DM Mono', monospace; text-align: center;">
+            Se generará automáticamente
+          </div>
         </div>
         <div>
           <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Identificación <span style="color: #EF4444;">*</span></label>
@@ -237,14 +233,14 @@
                style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; box-sizing: border-box;"
                [style.borderColor]="validationErrors()['email'] ? '#EF4444' : '#E2E8F0'"
                [style.backgroundColor]="validationErrors()['email'] ? '#FEE2E2' : '#F8FAFC'"
-               placeholder="juan@universidad.edu (máx. 35 caracteres)" 
+               placeholder="juan@universidad.edu (máx. 50 caracteres)" 
                onfocus="this.style.borderColor='#2563EB'; this.style.backgroundColor='white'"/>
         <p *ngIf="validationErrors()['email']" style="color: #EF4444; font-size: 0.75rem; margin-top: 0.25rem; font-weight: 600;">{{ validationErrors()['email'] }}</p>
         <p style="color: #94A3B8; font-size: 0.7rem; margin-top: 0.25rem;">{{ form.email.length }}/{{ getCharLimit('email') }} caracteres</p>
       </div>
 
       <div>
-        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Programa Académico</label>
+        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Programa Académico <span style="color: #EF4444;">*</span></label>
         <div style="position: relative;">
           <select [(ngModel)]="form.programId"
                   style="width: 100%; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.75rem 2.5rem 0.75rem 1rem; font-size: 0.875rem; color: #0F172A; background-color: #F8FAFC; outline: none; transition: all 0.2s; appearance: none; box-sizing: border-box; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.125rem;"
@@ -263,9 +259,9 @@
               onmouseover="this.style.backgroundColor='#E2E8F0'">
         Cancelar
       </button>
-      <button (click)="save()" [disabled]="saving() || !form.firstName || !form.lastName || !form.studentCode || !form.nationalId || (!editingId() && !form.login)"
+      <button (click)="save()" [disabled]="saving() || !form.firstName || !form.lastName || (!editingId() ? false : !form.studentCode) || !form.nationalId || (!editingId() && !form.login) || !form.programId"
               style="flex: 1; padding: 0.75rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 700; background-color: #2563EB; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);"
-              [style.opacity]="(saving() || !form.firstName || !form.lastName || !form.studentCode || !form.nationalId || (!editingId() && !form.login)) ? 0.5 : 1"
+              [style.opacity]="(saving() || !form.firstName || !form.lastName || (!editingId() ? false : !form.studentCode) || !form.nationalId || (!editingId() && !form.login) || !form.programId) ? 0.5 : 1"
               onmouseover="this.style.backgroundColor='#1D4ED8'">
         <svg *ngIf="saving()" style="animation: spin 1s linear infinite; width: 1.125rem; height: 1.125rem;" fill="none" viewBox="0 0 24 24">
           <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/>
