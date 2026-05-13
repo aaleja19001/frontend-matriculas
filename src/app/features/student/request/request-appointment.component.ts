@@ -220,6 +220,7 @@ export class RequestAppointmentComponent implements OnInit {
       next: () => {
         this.saving.set(false);
         this.success.set(true);
+        this.appointmentService.refreshPendingCount();
         setTimeout(() => this.router.navigate(['/student/dashboard']), 2000);
       },
       error: (err) => {

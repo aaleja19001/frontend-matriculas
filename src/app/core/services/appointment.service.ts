@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 
 import { SubjectOffering } from './subject-offering.service';
@@ -29,8 +29,15 @@ export interface Appointment {
 export class AppointmentService {
 
   private url = `${environment.apiUrl}/appointments`;
+  pendingCount = signal(0);
 
   constructor(private http: HttpClient) {}
+
+  refreshPendingCount() {
+    this.getAll().subscribe(data => {
+      this.pendingCount.set(data.filter(a => a.status === 'PENDING').length);
+    });
+  }
 
   getAll() {
     return this.http.get<Appointment[]>(this.url);
