@@ -300,8 +300,13 @@ export class AdvisorDashboardComponent implements OnInit {
     });
   }
 
-  formatTime(date: string) {
-    return new Date(date).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+  formatTime(time: string) {
+    if (!time) return '—';
+    // If it's just a time string (HH:mm:ss), we can't use new Date(time) directly in all browsers
+    if (time.includes(':') && !time.includes('-') && !time.includes('T')) {
+      return time.substring(0, 5); // Just return HH:mm
+    }
+    return new Date(time).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
   }
 
   formatTimeRange(start: string, end: string) {

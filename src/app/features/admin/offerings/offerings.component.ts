@@ -89,8 +89,8 @@ export class OfferingsComponent implements OnInit {
       subjectId: offering.subject.id!,
       professorId: offering.professor.id!,
       dayOfWeek: offering.dayOfWeek,
-      startTime: offering.startTime.substring(0, 16),
-      endTime: offering.endTime.substring(0, 16),
+      startTime: offering.startTime.substring(0, 5),
+      endTime: offering.endTime.substring(0, 5),
       semester: offering.semester,
       capacity: offering.capacity
     };
@@ -106,18 +106,29 @@ export class OfferingsComponent implements OnInit {
   save() {
     if (!this.form.subjectId || !this.form.professorId || !this.form.startTime || !this.form.endTime) return;
     
-    const errors = this.validationService.validateFields({ semester: this.form.semester });
-    if (errors.length > 0) {
-      this.validationErrors = { [errors[0].field]: errors[0].message };
+    this.validationErrors = {};
+
+    // Validar duración (2 a 8 horas)
+    const [startH, startM] = this.form.startTime.split(':').map(Number);
+    const [endH, endM] = this.form.endTime.split(':').map(Number);
+    const durationHours = (endH + endM / 60) - (startH + startM / 60);
+
+    if (durationHours < 2 || durationHours > 8) {
+      this.validationErrors['duration'] = `La duración debe ser entre 2 y 8 horas. (Actual: ${durationHours.toFixed(1)}h)`;
       return;
     }
-    this.validationErrors = {};
+
+    const errors = this.validationService.validateFields({ semester: this.form.semester });
+    if (errors.length > 0) {
+      this.validationErrors['semester'] = errors[0].message;
+      return;
+    }
 
     this.saving = true;
     const payload: any = {
       dayOfWeek: this.form.dayOfWeek,
-      startTime: `${this.form.startTime}:00Z`,
-      endTime: `${this.form.endTime}:00Z`,
+      startTime: `${this.form.startTime}:00`,
+      endTime: `${this.form.endTime}:00`,
       semester: this.form.semester,
       capacity: this.form.capacity,
       subject: { id: this.form.subjectId },
@@ -128,12 +139,18 @@ export class OfferingsComponent implements OnInit {
       payload.id = this.editingId;
       this.offeringService.update(this.editingId, payload).subscribe({
         next: () => { this.loadData(); this.closeModal(); this.saving = false; },
-        error: () => this.saving = false
+        error: (err) => { 
+          this.saving = false;
+          if (err.error?.message) alert(err.error.message);
+        }
       });
     } else {
       this.offeringService.create(payload).subscribe({
         next: () => { this.loadData(); this.closeModal(); this.saving = false; },
-        error: () => this.saving = false
+        error: (err) => { 
+          this.saving = false;
+          if (err.error?.message) alert(err.error.message);
+        }
       });
     }
   }
@@ -146,10 +163,8 @@ export class OfferingsComponent implements OnInit {
     });
   }
 
-  formatDate(date: string) {
-    if (!date) return '—';
-    return new Date(date).toLocaleString('es-CO', {
-      dateStyle: 'medium', timeStyle: 'short'
-    });
+  formatTime(time: string) {
+    if (!time) return '—';
+    return time.substring(0, 5);
   }
 }

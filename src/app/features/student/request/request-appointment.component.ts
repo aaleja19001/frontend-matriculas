@@ -136,8 +136,11 @@ export class RequestAppointmentComponent implements OnInit {
   }
 
   getTimeInMinutes(dateString: string): number {
-    const date = new Date(dateString);
-    return date.getHours() * 60 + date.getMinutes();
+    if (!dateString) return 0;
+    // Handle time-only strings (HH:mm:ss) or full ISO strings
+    const timeStr = dateString.includes('T') ? dateString.split('T')[1] : dateString;
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours * 60 + (minutes || 0);
   }
 
   getOfferingsByDay(day: DayOfWeek): SubjectOffering[] {
@@ -155,9 +158,13 @@ export class RequestAppointmentComponent implements OnInit {
     });
   }
 
-  formatTime(date: string) {
-    if (!date) return '—';
-    return new Date(date).toLocaleString('es-CO', {
+  formatTime(time: string) {
+    if (!time) return '—';
+    // If it's just a time string (HH:mm:ss), we can't use new Date(time) directly in all browsers
+    if (time.includes(':') && !time.includes('-') && !time.includes('T')) {
+      return time.substring(0, 5); // Just return HH:mm
+    }
+    return new Date(time).toLocaleString('es-CO', {
       timeStyle: 'short'
     });
   }
