@@ -40,7 +40,24 @@ import { environment } from '../../../../environments/environment';
           Configuración guardada correctamente.
         </div>
       </div>
-
+      
+<div style="background: white; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 2rem; margin-top: 2rem;">
+        <h2 style="font-size: 1.125rem; font-weight: 700; color: #0F172A; margin-bottom: 1rem;">Documentación de la API</h2>
+        <p style="font-size: 0.875rem; color: #64748B; margin-bottom: 1.5rem;">
+          Accede a la documentación técnica de los endpoints del sistema (Swagger/OpenAPI).
+        </p>
+        
+        <a [href]="swaggerUrl" target="_blank" 
+           style="display: inline-flex; align-items: center; gap: 0.5rem; background: #2563EB; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.875rem; transition: background 0.2s;"
+           onmouseover="this.style.backgroundColor='#1D4ED8'" 
+           onmouseout="this.style.backgroundColor='#2563EB'">
+          <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+          </svg>
+          Abrir Swagger UI
+        </a>
+      </div>
+      
       <div style="background: white; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 2rem; margin-top: 2rem; overflow-x: auto;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
           <h2 style="font-size: 1.125rem; font-weight: 700; color: #0F172A; margin: 0;">Auditoría de Cambios (Update/Delete)</h2>
@@ -97,7 +114,11 @@ export class SettingsComponent implements OnInit {
   
   auditLogs = signal<any[]>([]);
   loadingAudit = signal<boolean>(false);
-
+  
+get swaggerUrl(): string {
+    return environment.apiUrl.replace('/api', '') + '/swagger-ui/index.html';
+  }
+  
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
