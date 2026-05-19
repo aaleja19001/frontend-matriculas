@@ -24,7 +24,7 @@ export class ValidationService {
     studentCode: 20,
     nationalId: 20,
     login: 20,
-    name: 20,
+    name: 50,
     description: 20,
     title: 20,
     phone: 20,
